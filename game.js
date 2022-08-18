@@ -7,8 +7,8 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
-rl.on("close", function() {
-    console.log("\nBYE BYE !!!");
+rl.on("close", function () {
+    console.log("Exit");
     process.exit(0);
 });
 
@@ -18,10 +18,11 @@ function prompt(query) {
     }))
 }
 
-const INPUT_VALID = 0;
-const INPUT_INVALID = -1;
-const PUZZLE_SOLVED = 0;
-const PUZZLE_FAILED = -1;
+const MAGIC_SUCCESS = 0xAABB;
+const MAGIC_FAILED = 0xBBAA;
+const WORD_LENGTH_DEFAULT = 5;
+const OVERLAP_LENGTH_DEFAULT = 2;
+const MAX_STEPS_DEFAULT = 5;
 
 class Game {
     mode;
@@ -32,51 +33,69 @@ class Game {
     currStep;
     currInputs;
 
-    genPuzzle(settings) {
-        this.mode = {
-            wordLen: 5,
-            overlapLen: 2,
-            maxSteps: 4
-        };
-        let dict = fullDict.filter(e => e.length === this.mode.wordLen);
-        let filteredDict = dict;
-        let deadend = [];
-        let i = 0;
-        this.solution = Array(this.mode.maxSteps).fill("");
-        while (i < this.mode.maxSteps) {
-            if (i === 0){
+    genPuzzle(settings = { mode: null, solution: null }) {
+        if (settings.mode == null) {
+            this.mode = {
+                wordLen: WORD_LENGTH_DEFAULT,
+                overlapLen: OVERLAP_LENGTH_DEFAULT,
+                maxSteps: MAX_STEPS_DEFAULT
+            };
+        }
+        else {
+            this.mode = {
+                wordLen: settings.mode.wordLen,
+                overlapLen: settings.mode.overlapLen,
+                maxSteps: settings.mode.maxSteps,
+            };
+        }
 
-                this.solution[i] = this.getRandomItem(dict);
-                i++;
-            }
-            else {
-                // Get the ending of the previous word
-                let prevEnd = this.solution[i-1].slice(-this.mode.overlapLen);
-                // Get the list of words starting with the ending of the previous word
-                // also excluding those that were identified to lead to dead end
-                filteredDict = dict.filter(e => e.startsWith(prevEnd)).filter(e => !deadend.includes(e));
-                if (filteredDict.length > 0) {
-                    // Get random word from the filtered list
-                    this.solution[i] = this.getRandomItem(filteredDict);
-                    // Next word
+        if (settings.solution == null) {
+            let dict = fullDict.filter(e => e.length === this.mode.wordLen);
+            let filteredDict = null;
+            let deadend = [];
+            let i = 0;
+            this.solution = Array(this.mode.maxSteps).fill("");
+            while (i < this.mode.maxSteps) {
+                if (i === 0) {
+                    this.solution[i] = this.getRandomItem(dict);
                     i++;
                 }
                 else {
-                    // Previous word leads to dead end
-                    // Add previous word to dead end list
-                    deadend.push(this.solution[i-1]);
-                    // Go back to previous word to generate a new word
-                    this.solution[i-1] = "";
-                    i--;
+                    // Get the ending of the previous word
+                    let prevEnd = this.solution[i - 1].slice(-this.mode.overlapLen);
+                    // Get the list of words starting with the ending of the previous word
+                    // and excluding those that were identified to lead to dead end
+                    // and excluding duplicates 
+                    filteredDict = dict.filter(e => e.startsWith(prevEnd))
+                        .filter(e => !deadend.includes(e))
+                        .filter(e => !this.solution.includes(e));
+                    if (filteredDict.length > 0) {
+                        // Get random word from the filtered list
+                        this.solution[i] = this.getRandomItem(filteredDict);
+                        // Next word
+                        i++;
+                    }
+                    else {
+                        // Previous word leads to dead end
+                        // Add previous word to dead end list
+                        deadend.push(this.solution[i - 1]);
+                        // Go back to previous word to generate a new word
+                        this.solution[i - 1] = "";
+                        i--;
+                    }
                 }
+                if (deadend.length === dict.length) {
+                    return this.result(MAGIC_FAILED, "No solution found");
+                }
+                //console.log(this.solution);
+                //console.log(this.deadend);
             }
-            if (deadend.length === dict.length) {
-                console.log("no solution");
-                break;
-            }
-            //console.log(this.solution);
-            //console.log(this.deadend);
         }
+        else {
+            // Get from settings
+            this.solution = [...settings.solution];
+        }
+
         this.startWord = this.solution[0].slice(0, this.mode.overlapLen);
         this.endWord = this.solution.at(-1).slice(-this.mode.overlapLen);
         this.hints = this.solution.join("").slice(this.mode.overlapLen, -this.mode.overlapLen);
@@ -85,95 +104,72 @@ class Game {
         this.currInputs = Array(this.mode.maxSteps).fill("");
         this.currInputs[0] = this.startWord;
         this.currInputs[this.mode.maxSteps - 1] = this.endWord;
-    }
 
-    getRandomItem(array) {
-        return array[Math.floor(Math.random()*array.length)];
-    }
-
-    genTestPuzzle() {
-        this.mode = {
-            wordLen: 5,
-            overlapLen: 2,
-            maxSteps: 5
-        };
-        this.startWord = "ho";
-        this.endWord = "ms";
-        this.solution = ["house", "sever", "error", "orbit", "items"];
-        this.hints = ['b', 'e', 'i', 'o', 'r', 's', 't', 'u', 'v'];
-        this.currStep = 0;
-        this.currInputs = Array(this.mode.maxSteps).fill("");
-        this.currInputs[0] = this.startWord;
-        this.currInputs[this.mode.maxSteps - 1] = this.endWord;
+        return this.result(MAGIC_SUCCESS);
     }
 
     validateInput(input) {
-        let res = {status: INPUT_INVALID, data: ""};
-
         // Check input length
         if (input.length != this.mode.wordLen) {
-            return res;
+            return this.result(MAGIC_FAILED, "Wrong length");
         }
 
-        // TODO: Check the word with dictionary
+        // Check the word in dictionary
         if (!fullDict.includes(input)) {
-            res.data = "1"
-            return res;
+            return this.result(MAGIC_FAILED, "Not in dict");
         }
 
         // Check starting and ending words
         if (this.currStep === 0) {
             if (!input.startsWith(this.startWord)) {
-                return res;
+                return this.result(MAGIC_FAILED, "Word not match");
             }
             input = input.slice(this.mode.overlapLen);
         }
         else if (this.currStep === (this.mode.maxSteps - 1)) {
             if (!input.endsWith(this.endWord)) {
-                return res;
+                return this.result(MAGIC_FAILED, "Word not match");
             }
             input = input.slice(0, -this.mode.overlapLen);
         }
 
-        // Check actual input by user
+        // Check input with available hints
+        let invalidChar = "";
         input.split("").forEach((a) => {
             if (!this.hints.includes(a)) {
                 // Return the invalid alphabet
-                if(!res.data.includes(a)) {
-                    res.data += a;
+                if (!invalidChar.includes(a)) {
+                    invalidChar += a;
                 }
             }
         });
-
-        if (res.data === "") {
-            res.status = INPUT_VALID;
-        }
-
-        return res;
+        return (invalidChar === "") ? this.result(MAGIC_SUCCESS) : this.result(MAGIC_FAILED, invalidChar);
     }
 
     validateAll() {
-        let res = {status: PUZZLE_FAILED, data: ""};
         // Sanity check
         if (this.currInputs.length != this.mode.maxSteps) {
-            return res;
+            return this.result(MAGIC_FAILED, "Wrong length");
         }
-        // Check each input
         for (const [index, input] of this.currInputs.entries()) {
-            this.currStep = index;
-            if (this.validateInput(input).status != INPUT_VALID) {
-                return res;
+            this.setCurrentStep(index);
+            // Check for duplicates
+            if (this.currInputs.filter(e => input === e).length > 1) {
+                return this.result(MAGIC_FAILED, "Duplicate words");
+            }
+            // Check each input
+            if (this.validateInput(input).status != MAGIC_SUCCESS) {
+                return this.result(MAGIC_FAILED, "Invalid word");
             }
             if (index > 1) {
                 // Check current input's beginning is the same as 
                 // previous input's ending
                 if (!input.startsWith(this.currInputs[index - 1].slice(-this.mode.overlapLen))) {
-                    return res;
+                    return this.result(MAGIC_FAILED, "Word not match");
                 }
             }
         }
-        res.status = PUZZLE_SOLVED;
-        return res;
+        return this.result(MAGIC_SUCCESS);
     }
 
     setInput(input) {
@@ -183,40 +179,55 @@ class Game {
     setCurrentStep(step) {
         if (step >= 0 && step < this.mode.maxSteps) {
             this.currStep = step;
+            return this.result(MAGIC_SUCCESS);
         }
+        return this.result(MAGIC_FAILED, "Invalid step");
+    }
+
+    result(status, data = "") {
+        return { status: status, data: data };
+    }
+
+    getRandomItem(array) {
+        return array[Math.floor(Math.random() * array.length)];
     }
 
     async run() {
         while (true) {
-            var ans = await prompt(this.currInputs + '\n');
+            console.log(`${this.hints}`);
+            let ans = await prompt(this.currInputs + '\n');
             ans = ans.trim();
+            let res = null;
             switch (ans) {
                 case "s":
-                    if (this.validateAll().status === PUZZLE_SOLVED) {
-                        console.log("Puzzle solved\n");
-                        rl.close();
-                        return;
+                    res = this.validateAll();
+                    if (res.status === MAGIC_SUCCESS) {
+                        console.log("Puzzle solved");
                     }
                     else {
-                        console.log("Puzzle failed\n");
+                        console.log("Puzzle failed: " + res.data);
                     }
                     break;
                 case "a":
                     console.log(this.solution);
                     break;
+                case "g":
+                    console.log("New puzzle");
+                    this.genPuzzle();
+                    break;
                 default:
                     if (!isNaN(parseInt(ans))) {
                         this.setCurrentStep(parseInt(ans));
-                        console.log("Switched to " + ans + '\n');
+                        console.log("Switched to " + ans);
                     }
                     else {
-                        let res = this.validateInput(ans);
-                        if (res.status === INPUT_VALID) {
-                            console.log("Input valid\n");
+                        res = this.validateInput(ans);
+                        if (res.status === MAGIC_SUCCESS) {
+                            console.log("Input valid");
                             this.setInput(ans);
                         }
                         else {
-                            console.log("Input invalid : " + res.data + "\n");
+                            console.log("Input invalid: " + res.data);
                         }
                     }
                     break;
