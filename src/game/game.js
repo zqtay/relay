@@ -1,22 +1,4 @@
-const { readSync, readFileSync } = require("fs");
-const readline = require("readline");
-const fullDict = readFileSync('dict.txt', 'utf8').split("\r\n");
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
-
-rl.on("close", function () {
-    console.log("Exit");
-    process.exit(0);
-});
-
-function prompt(query) {
-    return new Promise(resolve => rl.question(query, ans => {
-        resolve(ans);
-    }))
-}
+import dict from "./dict.json";
 
 const MAGIC_SUCCESS = 0xAABB;
 const MAGIC_FAILED = 0xBBAA;
@@ -30,6 +12,7 @@ class Game {
     endWord;
     solution;
     hints;
+    currDict;
     currStep;
     currInputs;
 
@@ -50,14 +33,14 @@ class Game {
         }
 
         if (settings.solution == null) {
-            let dict = fullDict.filter(e => e.length === this.mode.wordLen);
+            this.currDict = dict[this.mode.wordLen];
             let filteredDict = null;
-            let deadend = [];
+            let deadEnd = [];
             let i = 0;
             this.solution = Array(this.mode.maxSteps).fill("");
             while (i < this.mode.maxSteps) {
                 if (i === 0) {
-                    this.solution[i] = this.getRandomItem(dict);
+                    this.solution[i] = this.getRandomItem(this.currDict);
                     i++;
                 }
                 else {
@@ -66,8 +49,8 @@ class Game {
                     // Get the list of words starting with the ending of the previous word
                     // and excluding those that were identified to lead to dead end
                     // and excluding duplicates 
-                    filteredDict = dict.filter(e => e.startsWith(prevEnd))
-                        .filter(e => !deadend.includes(e))
+                    filteredDict = this.currDict.filter(e => e.startsWith(prevEnd))
+                        .filter(e => !deadEnd.includes(e))
                         .filter(e => !this.solution.includes(e));
                     if (filteredDict.length > 0) {
                         // Get random word from the filtered list
@@ -78,17 +61,15 @@ class Game {
                     else {
                         // Previous word leads to dead end
                         // Add previous word to dead end list
-                        deadend.push(this.solution[i - 1]);
+                        deadEnd.push(this.solution[i - 1]);
                         // Go back to previous word to generate a new word
                         this.solution[i - 1] = "";
                         i--;
                     }
                 }
-                if (deadend.length === dict.length) {
+                if (deadEnd.length === dict.length) {
                     return this.result(MAGIC_FAILED, "No solution found");
                 }
-                //console.log(this.solution);
-                //console.log(this.deadend);
             }
         }
         else {
@@ -105,7 +86,7 @@ class Game {
         this.currInputs[0] = this.startWord;
         this.currInputs[this.mode.maxSteps - 1] = this.endWord;
 
-        return this.result(MAGIC_SUCCESS);
+        return this.result(MAGIC_SUCCESS, "New puzzle");
     }
 
     validateInput(input) {
@@ -115,7 +96,7 @@ class Game {
         }
 
         // Check the word in dictionary
-        if (!fullDict.includes(input)) {
+        if (!this.currDict.includes(input)) {
             return this.result(MAGIC_FAILED, "Not in dict");
         }
 
@@ -143,45 +124,74 @@ class Game {
                 }
             }
         });
-        return (invalidChar === "") ? this.result(MAGIC_SUCCESS) : this.result(MAGIC_FAILED, invalidChar);
+
+        return (invalidChar === "") ? 
+        this.result(MAGIC_SUCCESS, "Valid input") : 
+        this.result(MAGIC_FAILED, "Invalid alphabet: "+ invalidChar);
     }
 
     validateAll() {
+        // Backup currStep
+        let currStepBackup = this.currStep;
+
         // Sanity check
         if (this.currInputs.length != this.mode.maxSteps) {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
+        
         for (const [index, input] of this.currInputs.entries()) {
-            this.setCurrentStep(index);
+            this.setCurrStep(index);
             // Check for duplicates
             if (this.currInputs.filter(e => input === e).length > 1) {
-                return this.result(MAGIC_FAILED, "Duplicate words");
+                // Restore currStep
+                this.currStep = currStepBackup;
+                return this.result(MAGIC_FAILED, `Duplicate words: ${input}`);
             }
             // Check each input
             if (this.validateInput(input).status != MAGIC_SUCCESS) {
-                return this.result(MAGIC_FAILED, "Invalid word");
+                // Restore currStep
+                this.currStep = currStepBackup;
+                return this.result(MAGIC_FAILED, `Invalid word: ${input}`);
             }
-            if (index > 1) {
+            if (index >= 1) {
                 // Check current input's beginning is the same as 
                 // previous input's ending
                 if (!input.startsWith(this.currInputs[index - 1].slice(-this.mode.overlapLen))) {
-                    return this.result(MAGIC_FAILED, "Word not match");
+                    // Restore currStep
+                    this.currStep = currStepBackup;
+                    return this.result(MAGIC_FAILED, `Word not match: ${this.currInputs[index - 1]}, ${input}`) ;
                 }
             }
         }
-        return this.result(MAGIC_SUCCESS);
+        return this.result(MAGIC_SUCCESS, "Puzzle solved");
     }
 
     setInput(input) {
-        this.currInputs[this.currStep] = input;
+        let res = this.validateInput(input);
+        if (res.status === MAGIC_SUCCESS) {
+            this.currInputs[this.currStep] = input;
+        }
+        return res;
     }
 
-    setCurrentStep(step) {
+    setCurrStep(step) {
         if (step >= 0 && step < this.mode.maxSteps) {
             this.currStep = step;
-            return this.result(MAGIC_SUCCESS);
+            return this.result(MAGIC_SUCCESS, "Switched to " + step);
         }
         return this.result(MAGIC_FAILED, "Invalid step");
+    }
+
+    getCurrInputs() {
+        return this.result(MAGIC_SUCCESS, `${this.currInputs}`)
+    }
+
+    getHints() {
+        return this.result(MAGIC_SUCCESS, `${this.hints}`)
+    }
+
+    getSolution() {
+        return this.result(MAGIC_SUCCESS, `${this.solution}`)
     }
 
     result(status, data = "") {
@@ -192,48 +202,24 @@ class Game {
         return array[Math.floor(Math.random() * array.length)];
     }
 
-    async run() {
-        while (true) {
-            console.log(`${this.hints}`);
-            let ans = await prompt(this.currInputs + '\n');
-            ans = ans.trim();
-            let res = null;
-            switch (ans) {
-                case "s":
-                    res = this.validateAll();
-                    if (res.status === MAGIC_SUCCESS) {
-                        console.log("Puzzle solved");
-                    }
-                    else {
-                        console.log("Puzzle failed: " + res.data);
-                    }
-                    break;
-                case "a":
-                    console.log(this.solution);
-                    break;
-                case "g":
-                    console.log("New puzzle");
-                    this.genPuzzle();
-                    break;
-                default:
-                    if (!isNaN(parseInt(ans))) {
-                        this.setCurrentStep(parseInt(ans));
-                        console.log("Switched to " + ans);
-                    }
-                    else {
-                        res = this.validateInput(ans);
-                        if (res.status === MAGIC_SUCCESS) {
-                            console.log("Input valid");
-                            this.setInput(ans);
-                        }
-                        else {
-                            console.log("Input invalid: " + res.data);
-                        }
-                    }
-                    break;
-            }
+    process(input) {
+        input = input.trim();
+        switch (input) {
+            case "s":
+                return this.validateAll();
+            case "a":
+                return this.getSolution();
+            case "g":
+                return this.genPuzzle();
+            default:
+                if (!isNaN(parseInt(input))) {
+                    return this.setCurrStep(parseInt(input));
+                }
+                else {
+                    return this.setInput(input);
+                }
         }
     }
 }
 
-module.exports = Game;
+export default Game;
