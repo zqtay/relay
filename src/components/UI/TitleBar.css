@@ -1,0 +1,15 @@
+.titlebar-button {
+    color: #181819FF
+}
+
+.titlebar-button:focus,
+.titlebar-button:hover {
+    color: #2A1CAA;
+    transform: scale(1.15);
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}

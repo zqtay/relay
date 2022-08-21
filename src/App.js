@@ -1,9 +1,9 @@
-import logo from './logo.svg';
 import './App.css';
 
 import React, { useState, useRef } from 'react';
 
 import Game from "./game/game";
+import TitleBar from './components/UI/TitleBar';
 
 const game = new Game();
 
@@ -26,6 +26,9 @@ function App() {
 
   return (
     <div className="App">
+      <header>
+        <TitleBar title="Relay" onClickHandlers={{info:null, newGame:null, settings:null}} />
+      </header>
       <div>
         <div>{game.getHints().data}</div>
         <div>{`${currInputs}`}</div>
