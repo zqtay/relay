@@ -2,7 +2,7 @@ import './App.css';
 
 import React, { useState, useRef } from 'react';
 
-import Game from "./game/game";
+import Game from "./game/Game";
 import TitleBar from './components/UI/TitleBar';
 import Dialog from './components/UI/Dialog';
 

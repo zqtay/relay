@@ -1,10 +1,17 @@
 import dict from "./dict.json";
-
-const MAGIC_SUCCESS = 0xAABB;
-const MAGIC_FAILED = 0xBBAA;
-const WORD_LENGTH_DEFAULT = 5;
-const OVERLAP_LENGTH_DEFAULT = 2;
-const MAX_STEPS_DEFAULT = 5;
+import {
+    MAGIC_SUCCESS, 
+    MAGIC_FAILED, 
+    WORD_LENGTH_DEFAULT, 
+    OVERLAP_LENGTH_DEFAULT, 
+    MAX_STEPS_DEFAULT,
+    MIN_WORD_LENGTH,
+    MAX_WORD_LENGTH,
+    MIN_OVERLAP_LENGTH,
+    MAX_OVERLAP_LENGTH,
+    MIN_STEPS,
+    MAX_STEPS
+} from "./GameConst";
 
 class Game {
     mode;
@@ -25,6 +32,17 @@ class Game {
             };
         }
         else {
+            // Check game settings limit
+            if (!(settings.mode.wordLen >= MIN_WORD_LENGTH && settings.mode.wordLen <= MAX_WORD_LENGTH) || 
+                !(settings.mode.overlapLen >= MIN_OVERLAP_LENGTH && settings.mode.overlapLen <= MAX_OVERLAP_LENGTH) || 
+                !(settings.mode.maxSteps >= MIN_STEPS && settings.mode.maxSteps <= MAX_STEPS)) {
+                return this.result(MAGIC_FAILED, "Invalid mode");
+            }
+
+            if ((settings.mode.wordLen >> 1) < settings.mode.overlapLen) {
+                return this.result(MAGIC_FAILED, "Invalid mode");
+            }
+
             this.mode = {
                 wordLen: settings.mode.wordLen,
                 overlapLen: settings.mode.overlapLen,
@@ -91,7 +109,7 @@ class Game {
 
     validateInput(input) {
         // Check input length
-        if (input.length != this.mode.wordLen) {
+        if (input.length !== this.mode.wordLen) {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
 
@@ -135,7 +153,7 @@ class Game {
         let currStepBackup = this.currStep;
 
         // Sanity check
-        if (this.currInputs.length != this.mode.maxSteps) {
+        if (this.currInputs.length !== this.mode.maxSteps) {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
         
@@ -148,7 +166,7 @@ class Game {
                 return this.result(MAGIC_FAILED, `Duplicate words: ${input}`);
             }
             // Check each input
-            if (this.validateInput(input).status != MAGIC_SUCCESS) {
+            if (this.validateInput(input).status !== MAGIC_SUCCESS) {
                 // Restore currStep
                 this.currStep = currStepBackup;
                 return this.result(MAGIC_FAILED, `Invalid word: ${input}`);
@@ -182,16 +200,20 @@ class Game {
         return this.result(MAGIC_FAILED, "Invalid step");
     }
 
+    getMode() {
+        return this.result(MAGIC_SUCCESS, this.mode);
+    }
+
     getCurrInputs() {
-        return this.result(MAGIC_SUCCESS, `${this.currInputs}`)
+        return this.result(MAGIC_SUCCESS, this.currInputs)
     }
 
     getHints() {
-        return this.result(MAGIC_SUCCESS, `${this.hints}`)
+        return this.result(MAGIC_SUCCESS, this.hints)
     }
 
     getSolution() {
-        return this.result(MAGIC_SUCCESS, `${this.solution}`)
+        return this.result(MAGIC_SUCCESS, this.solution)
     }
 
     result(status, data = "") {
