@@ -45,11 +45,11 @@ const DialogHeader = ({ icon, title, dismiss }) => {
     return (
         <div className="modal-header">
             <span className="fa-lg modal-title-icon">
-                <i class={`fa-solid fa-lg ${icon}`}></i>
+                <i className={`fa-solid fa-lg ${icon}`}></i>
             </span>
             <h4 className="modal-title ms-2">{title}</h4>
             <span className="fa-lg ms-auto" onClick={dismiss}>
-                <i class="fa-solid fa-lg fa-circle-xmark modal-dismiss-button"></i>
+                <i className="fa-solid fa-lg fa-circle-xmark modal-dismiss-button"></i>
             </span>
         </div>
     );
