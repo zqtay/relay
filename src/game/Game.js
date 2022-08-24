@@ -1,9 +1,10 @@
+import { Buffer } from "buffer";
 import dict from "./dict.json";
 import {
-    MAGIC_SUCCESS, 
-    MAGIC_FAILED, 
-    WORD_LENGTH_DEFAULT, 
-    OVERLAP_LENGTH_DEFAULT, 
+    MAGIC_SUCCESS,
+    MAGIC_FAILED,
+    WORD_LENGTH_DEFAULT,
+    OVERLAP_LENGTH_DEFAULT,
     MAX_STEPS_DEFAULT,
     MIN_WORD_LENGTH,
     MAX_WORD_LENGTH,
@@ -33,8 +34,8 @@ class Game {
         }
         else {
             // Check game settings limit
-            if (!(settings.mode.wordLen >= MIN_WORD_LENGTH && settings.mode.wordLen <= MAX_WORD_LENGTH) || 
-                !(settings.mode.overlapLen >= MIN_OVERLAP_LENGTH && settings.mode.overlapLen <= MAX_OVERLAP_LENGTH) || 
+            if (!(settings.mode.wordLen >= MIN_WORD_LENGTH && settings.mode.wordLen <= MAX_WORD_LENGTH) ||
+                !(settings.mode.overlapLen >= MIN_OVERLAP_LENGTH && settings.mode.overlapLen <= MAX_OVERLAP_LENGTH) ||
                 !(settings.mode.maxSteps >= MIN_STEPS && settings.mode.maxSteps <= MAX_STEPS)) {
                 return this.result(MAGIC_FAILED, "Invalid mode");
             }
@@ -107,6 +108,24 @@ class Game {
         return this.result(MAGIC_SUCCESS, "New puzzle");
     }
 
+    async genPuzzleAsync(settings = { mode: null, solution: null }) {
+        return new Promise(resolve => {
+            resolve(this.genPuzzle(settings));
+        });
+    }
+
+    async genPuzzleFromEncoded(encoded) {
+        return new Promise(resolve => {
+            let res = this.getSettingsFromEncoded(encoded);
+            if (res.status != MAGIC_SUCCESS) {
+                resolve(res);
+            }
+            else {
+                resolve(this.genPuzzle(res.data));
+            }
+        });
+    }
+
     validateInput(input) {
         // Check input length
         if (input.length !== this.mode.wordLen) {
@@ -143,9 +162,9 @@ class Game {
             }
         });
 
-        return (invalidChar === "") ? 
-        this.result(MAGIC_SUCCESS, "Valid input") : 
-        this.result(MAGIC_FAILED, "Invalid alphabet: "+ invalidChar);
+        return (invalidChar === "") ?
+            this.result(MAGIC_SUCCESS, "Valid input") :
+            this.result(MAGIC_FAILED, "Invalid alphabet: " + invalidChar);
     }
 
     validateAll() {
@@ -156,7 +175,7 @@ class Game {
         if (this.currInputs.length !== this.mode.maxSteps) {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
-        
+
         for (const [index, input] of this.currInputs.entries()) {
             this.setCurrStep(index);
             // Check for duplicates
@@ -177,7 +196,7 @@ class Game {
                 if (!input.startsWith(this.currInputs[index - 1].slice(-this.mode.overlapLen))) {
                     // Restore currStep
                     this.currStep = currStepBackup;
-                    return this.result(MAGIC_FAILED, `Word not match: ${this.currInputs[index - 1]}, ${input}`) ;
+                    return this.result(MAGIC_FAILED, `Word not match: ${this.currInputs[index - 1]}, ${input}`);
                 }
             }
         }
@@ -214,6 +233,53 @@ class Game {
 
     getSolution() {
         return this.result(MAGIC_SUCCESS, this.solution)
+    }
+
+    getEncodedFromSettings() {
+        if (this.mode === null || this.solution === null) {
+            return this.result(MAGIC_FAILED, "Game settings not init");
+        }
+        let solStr = "";
+        const overlap = this.mode.overlapLen;
+        for (const [index, word] of this.solution.entries()) {
+            if(index === 0) {
+                solStr += word;
+            } 
+            else {
+                solStr += word.slice(overlap);
+            }
+        }
+        let encoded = `${this.mode.wordLen},${this.mode.overlapLen},${this.mode.maxSteps},${solStr}`;
+        encoded = Buffer.from(encoded).toString("base64");
+        return this.result(MAGIC_SUCCESS, encoded);
+    }
+
+    getSettingsFromEncoded(encoded) {
+        let settings = {mode: {wordLen: -1, overlapLen: -1, maxSteps: -1}, solution: []};
+        try {
+            // Mode
+            let buff = Buffer.from(encoded, "base64");
+            let textArray = buff.toString("ascii").split(",");
+            settings.mode.wordLen = parseInt(textArray[0]);
+            settings.mode.overlapLen = parseInt(textArray[1]);
+            settings.mode.maxSteps = parseInt(textArray[2]);
+            // Solution
+            let startIndex, endIndex = 0;
+            for (let i = 0; i < settings.mode.maxSteps; i++) {
+                if (i === 0) {
+                    settings.solution.push(textArray[3].slice(0, settings.mode.wordLen));
+                }
+                else {
+                    startIndex = i * (settings.mode.wordLen - settings.mode.overlapLen);
+                    endIndex = startIndex + settings.mode.wordLen;
+                    settings.solution.push(textArray[3].slice(startIndex, endIndex));
+                }
+            }
+        }
+        catch (e) {
+            return this.result(MAGIC_FAILED, "Invalid format");
+        }
+        return this.result(MAGIC_SUCCESS, settings);
     }
 
     result(status, data = "") {
