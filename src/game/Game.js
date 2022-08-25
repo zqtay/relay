@@ -14,6 +14,8 @@ import {
     MAX_STEPS
 } from "./GameConst";
 
+const GEN_PUZZLE_TIMEOUT = 2000; // in ms
+
 class Game {
     mode;
     startWord;
@@ -55,8 +57,14 @@ class Game {
             this.currDict = dict[this.mode.wordLen];
             let filteredDict = null;
             let deadEnd = [];
-            let i = 0;
             this.solution = Array(this.mode.maxSteps).fill("");
+
+            // Manual timeout break
+            let elapsedTime = 0;
+            const startTime =  Date.now();
+
+            // Recursive loop
+            let i = 0;
             while (i < this.mode.maxSteps) {
                 if (i === 0) {
                     this.solution[i] = this.getRandomItem(this.currDict);
@@ -89,6 +97,10 @@ class Game {
                 if (deadEnd.length === dict.length) {
                     return this.result(MAGIC_FAILED, "No solution found");
                 }
+                elapsedTime = Date.now() - startTime;
+                if (elapsedTime > GEN_PUZZLE_TIMEOUT) {
+                    return this.result(MAGIC_FAILED, "No solution found");
+                }
             }
         }
         else {
@@ -117,7 +129,7 @@ class Game {
     async genPuzzleFromEncoded(encoded) {
         return new Promise(resolve => {
             let res = this.getSettingsFromEncoded(encoded);
-            if (res.status != MAGIC_SUCCESS) {
+            if (res.status !== MAGIC_SUCCESS) {
                 resolve(res);
             }
             else {
