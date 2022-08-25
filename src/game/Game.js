@@ -106,6 +106,7 @@ class Game {
         else {
             // Get from settings
             this.solution = [...settings.solution];
+            this.currDict = dict[this.mode.wordLen];
         }
 
         this.startWord = this.solution[0].slice(0, this.mode.overlapLen);
