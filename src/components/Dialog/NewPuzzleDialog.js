@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 import Dialog from "../UI/Dialog";
 import Slider from "../UI/Slider";
@@ -10,9 +11,9 @@ import {
     MIN_OVERLAP_LENGTH, 
     MAX_OVERLAP_LENGTH, 
     MIN_STEPS, 
-    MAX_STEPS
+    MAX_STEPS,
+    MAGIC_SUCCESS
 } from "../../game/GameConst"
-import React from "react";
 
 const ID_INPUT_WORD_LENGTH = "input_wordLength";
 const ID_INPUT_OVERLAP_LENGTH = "input_overlapLength";
@@ -22,6 +23,8 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
     const inputWordLengthRef = useRef(null);
     const inputOverlapLengthRef = useRef(null);
     const inputNoOfWordsRef = useRef(null);
+    const [status, setStatus] = useState(null);
+    const navigate = useNavigate();
 
     const btnConfirm = {
         name: "Start",
@@ -33,21 +36,28 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
                     maxSteps: inputNoOfWordsRef.current.value
                 }
             };
-            console.log(settings);
             const game = new Game();
             let res = await game.genPuzzleAsync(settings);
-            console.log(res);
-            res = game.getEncodedFromSettings();
-            console.log(res.data);
-            res = game.getSettingsFromEncoded(res.data);
-            console.log(res.data);
-            dismiss();
+            if (res.status === MAGIC_SUCCESS) {
+                res = game.getEncodedFromSettings();
+                if (res.status === MAGIC_SUCCESS) {
+                    setStatus(null);
+                    dismiss();
+                    navigate(`/?puzzle=${res.data}`, { replace: true });
+                    window.location.reload();
+                    return;
+                }
+            }
+            setStatus(<StatusError text={res.data} />);
         }
     };
 
     const btnCancel = {
         name: "Cancel",
-        onClick: dismiss
+        onClick: () => {
+            setStatus(null);
+            dismiss();
+        }
     };
 
     return (
@@ -56,6 +66,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
             icon="fa-dice"
             title="New Puzzle"
             content={<Settings inputWordLengthRef={inputWordLengthRef} inputOverlapLengthRef={inputOverlapLengthRef} inputNoOfWordsRef={inputNoOfWordsRef} />}
+            status={status}
             btnCancel={btnCancel}
             btnConfirm={btnConfirm}
             dismiss={dismiss}
@@ -75,6 +86,13 @@ const Settings = ({inputWordLengthRef, inputOverlapLengthRef, inputNoOfWordsRef}
     );
 };
 
-
+const StatusError = ({text}) => {
+    return (
+        <>
+            <i className="modal-status-error fa-solid fa-md fa-triangle-exclamation"></i>
+            <span className="modal-status-error me-auto">{text}</span>
+        </>
+    );
+}
 
 export default NewPuzzleDialog;

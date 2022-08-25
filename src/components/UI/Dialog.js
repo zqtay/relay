@@ -2,7 +2,7 @@ import "./Dialog.css"
 
 import React, { useEffect, useRef } from 'react';
 
-const Dialog = ({ show, icon, title, content, btnConfirm, btnCancel, dismiss }) => {
+const Dialog = ({ show, icon, title, content, btnConfirm, btnCancel, status, dismiss }) => {
     const showClassName = show ? "show" : "hidden";
     const dialogRef = useRef(null);
     useOutsideHandler(dialogRef, dismiss);
@@ -15,7 +15,7 @@ const Dialog = ({ show, icon, title, content, btnConfirm, btnCancel, dismiss }) 
                     <div className="modal-body">
                         {content}
                     </div>
-                    <DialogFooter btnConfirm={btnConfirm} btnCancel={btnCancel} />
+                    <DialogFooter btnConfirm={btnConfirm} btnCancel={btnCancel} status={status} />
                 </div>
             </div>
         </div>
@@ -55,9 +55,10 @@ const DialogHeader = ({ icon, title, dismiss }) => {
     );
 }
 
-const DialogFooter = ({ btnConfirm, btnCancel }) => {
+const DialogFooter = ({ btnConfirm, btnCancel, status }) => {
     return (
         <div className="modal-footer">
+            {status}
             {btnCancel != null ? <button type="button" className="btn btn-default" onClick={btnCancel.onClick}>{btnCancel.name}</button> : null}
             <button type="button" className="btn btn-primary modal-confirm-button" onClick={btnConfirm.onClick}>{btnConfirm.name}</button>
         </div>

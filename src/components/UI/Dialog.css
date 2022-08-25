@@ -34,6 +34,10 @@
     color: #7060ff;
 }
 
+.modal-status-error {
+    color: #c51010;
+}
+
 .modal-dismiss-button:focus,
 .modal-dismiss-button:hover {
     color: #c51010;
