@@ -6,6 +6,9 @@ import Slider from "../UI/Slider";
 
 import Game from "../../game/Game";
 import {
+    WORD_LENGTH_DEFAULT,
+    OVERLAP_LENGTH_DEFAULT,
+    MAX_STEPS_DEFAULT,
     MIN_WORD_LENGTH, 
     MAX_WORD_LENGTH, 
     MIN_OVERLAP_LENGTH, 
@@ -19,12 +22,22 @@ const ID_INPUT_WORD_LENGTH = "input_wordLength";
 const ID_INPUT_OVERLAP_LENGTH = "input_overlapLength";
 const ID_INPUT_NO_OF_WORDS = "input_noOfWords";
 
+const game = new Game();
+
 const NewPuzzleDialog = ({ show, dismiss }) => {
     const inputWordLengthRef = useRef(null);
     const inputOverlapLengthRef = useRef(null);
     const inputNoOfWordsRef = useRef(null);
     const [status, setStatus] = useState(null);
     const navigate = useNavigate();
+
+    const content = <Settings 
+    inputWordLengthRef={inputWordLengthRef} 
+    inputOverlapLengthRef={inputOverlapLengthRef} 
+    inputNoOfWordsRef={inputNoOfWordsRef} 
+    dvWordLength={WORD_LENGTH_DEFAULT} 
+    dvOverlapLength={OVERLAP_LENGTH_DEFAULT}
+    dvNoOfWords={MAX_STEPS_DEFAULT} />;
 
     const btnConfirm = {
         name: "Start",
@@ -36,7 +49,6 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
                     maxSteps: inputNoOfWordsRef.current.value
                 }
             };
-            const game = new Game();
             let res = await game.genPuzzleAsync(settings);
             if (res.status === MAGIC_SUCCESS) {
                 res = game.getEncodedFromSettings();
@@ -65,7 +77,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
             show={show}
             icon="fa-dice"
             title="New Puzzle"
-            content={<Settings inputWordLengthRef={inputWordLengthRef} inputOverlapLengthRef={inputOverlapLengthRef} inputNoOfWordsRef={inputNoOfWordsRef} />}
+            content={content}
             status={status}
             btnCancel={btnCancel}
             btnConfirm={btnConfirm}
@@ -74,14 +86,14 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
     );
 }
 
-const Settings = ({inputWordLengthRef, inputOverlapLengthRef, inputNoOfWordsRef}) => {
+const Settings = ({inputWordLengthRef, inputOverlapLengthRef, inputNoOfWordsRef, dvWordLength, dvOverlapLength, dvNoOfWords}) => {
     return (
         <div className="">
-            <Slider title="Word length" id={ID_INPUT_WORD_LENGTH} min={MIN_WORD_LENGTH} max={MAX_WORD_LENGTH} _ref={inputWordLengthRef} />
+            <Slider title="Word length" id={ID_INPUT_WORD_LENGTH} min={MIN_WORD_LENGTH} max={MAX_WORD_LENGTH} defaultValue={dvWordLength} _ref={inputWordLengthRef} />
             <hr />
-            <Slider title="Overlapping characters" id={ID_INPUT_OVERLAP_LENGTH} min={MIN_OVERLAP_LENGTH} max={MAX_OVERLAP_LENGTH} _ref={inputOverlapLengthRef} />
+            <Slider title="Overlapping characters" id={ID_INPUT_OVERLAP_LENGTH} min={MIN_OVERLAP_LENGTH} max={MAX_OVERLAP_LENGTH} defaultValue={dvOverlapLength} _ref={inputOverlapLengthRef} />
             <hr />
-            <Slider title="Number of words" id={ID_INPUT_NO_OF_WORDS} min={MIN_STEPS} max={MAX_STEPS} _ref={inputNoOfWordsRef} />
+            <Slider title="Number of words" id={ID_INPUT_NO_OF_WORDS} min={MIN_STEPS} max={MAX_STEPS} defaultValue={dvNoOfWords} _ref={inputNoOfWordsRef} />
         </div>
     );
 };
