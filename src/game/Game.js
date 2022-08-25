@@ -237,42 +237,46 @@ class Game {
 
     getEncodedFromSettings() {
         if (this.mode === null || this.solution === null) {
-            return this.result(MAGIC_FAILED, "Game settings not init");
+            return this.result(MAGIC_FAILED, "Game settings not initialized");
         }
         let solStr = "";
         const overlap = this.mode.overlapLen;
-        for (const [index, word] of this.solution.entries()) {
-            if(index === 0) {
-                solStr += word;
-            } 
-            else {
-                solStr += word.slice(overlap);
+        try {
+            for (const [index, word] of this.solution.entries()) {
+                if(index === 0) {
+                    solStr += word;
+                } 
+                else {
+                    solStr += word.slice(overlap);
+                }
             }
+            let encoded = `${this.mode.wordLen},${this.mode.overlapLen},${this.mode.maxSteps},${Buffer.from(solStr).toString("base64")}`;
+            return this.result(MAGIC_SUCCESS, encoded);
         }
-        let encoded = `${this.mode.wordLen},${this.mode.overlapLen},${this.mode.maxSteps},${solStr}`;
-        encoded = Buffer.from(encoded).toString("base64");
-        return this.result(MAGIC_SUCCESS, encoded);
+        catch (e) {
+            this.result(MAGIC_FAILED, "Failed to generate encoded string");
+        }
     }
 
     getSettingsFromEncoded(encoded) {
         let settings = {mode: {wordLen: -1, overlapLen: -1, maxSteps: -1}, solution: []};
         try {
+            let textArray = encoded.split(",");
             // Mode
-            let buff = Buffer.from(encoded, "base64");
-            let textArray = buff.toString("ascii").split(",");
             settings.mode.wordLen = parseInt(textArray[0]);
             settings.mode.overlapLen = parseInt(textArray[1]);
             settings.mode.maxSteps = parseInt(textArray[2]);
             // Solution
+            let solStr = Buffer.from(textArray[3], "base64").toString("ascii");
             let startIndex, endIndex = 0;
             for (let i = 0; i < settings.mode.maxSteps; i++) {
                 if (i === 0) {
-                    settings.solution.push(textArray[3].slice(0, settings.mode.wordLen));
+                    settings.solution.push(solStr.slice(0, settings.mode.wordLen));
                 }
                 else {
                     startIndex = i * (settings.mode.wordLen - settings.mode.overlapLen);
                     endIndex = startIndex + settings.mode.wordLen;
-                    settings.solution.push(textArray[3].slice(startIndex, endIndex));
+                    settings.solution.push(solStr.slice(startIndex, endIndex));
                 }
             }
         }
