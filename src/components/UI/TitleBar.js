@@ -6,7 +6,7 @@ const TitleBar = (props) => {
     return (
         <nav className="navbar navbar-expand bg-light sticky-top shadow-sm">
             <div className="container">
-                <a className="navbar-brand" href="#">{props.title}</a>
+                <a className="navbar-brand" href="/">{props.title}</a>
                 <div className="collapse navbar-collapse">
                     <ul className="navbar-nav ms-auto align-self-center">
                         <li className="nav-item ps-3">

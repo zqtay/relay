@@ -13,8 +13,12 @@ const Board = (props) => {
     useEffect(() => {
         if ((puzzleSettings = searchParams.get("puzzle")) !== null) {
             game.genPuzzleFromEncoded(puzzleSettings);
-            setCurrInputs(game.getCurrInputs().data);
         }
+        else {
+            // Random puzzle with default settings
+            game.genPuzzle();
+        }
+        setCurrInputs(game.getCurrInputs().data);
     }, []);
 
     function handleClick() {
