@@ -59,8 +59,8 @@ const DialogFooter = ({ btnConfirm, btnCancel, status }) => {
     return (
         <div className="modal-footer">
             {status}
-            {btnCancel != null ? <button type="button" className="btn btn-default" onClick={btnCancel.onClick}>{btnCancel.name}</button> : null}
-            <button type="button" className="btn btn-primary modal-confirm-button" onClick={btnConfirm.onClick}>{btnConfirm.name}</button>
+            {btnCancel}
+            {btnConfirm}
         </div>
     );
 }
