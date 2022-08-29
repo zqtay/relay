@@ -172,7 +172,7 @@ class Game {
             return this.result(MAGIC_FAILED, "Not in dict");
         }
 
-        return this.result(MAGIC_SUCCESS, "Valid input");  
+        return this.result(MAGIC_SUCCESS, "Valid input");
     }
 
     validateAll() {
@@ -209,6 +209,28 @@ class Game {
             }
         }
         return this.result(MAGIC_SUCCESS, "Puzzle solved");
+    }
+
+    addRandomHint() {
+        let hints = [];
+        const hint = this.state.hints[this.state.step];
+        const input = this.state.inputs[this.state.step];
+        this.solution[this.state.step].split("").forEach(
+            (a, i) => {
+                if (hint[i] === " ") {
+                    hints.push({ index: i, hint: a });
+                }
+            }
+        );
+
+        if (hints.length === 0) {
+            return this.result(MAGIC_FAILED, "No available hints");
+        }
+
+        let data = this.getRandomItem(hints);
+        this.state.hints[this.state.step] = hint.slice(0, data.index) + data.hint + hint.slice(data.index + 1);
+        this.state.inputs[this.state.step] = input.slice(0, data.index) + data.hint + input.slice(data.index + 1);
+        return this.result(MAGIC_SUCCESS, data);
     }
 
     setInput(input) {
@@ -315,6 +337,8 @@ class Game {
                 return this.getSolution();
             case "g":
                 return this.genPuzzle();
+            case "h":
+                return this.addRandomHint();
             default:
                 if (!isNaN(parseInt(input))) {
                     return this.setStep(parseInt(input));
