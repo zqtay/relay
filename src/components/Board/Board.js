@@ -18,12 +18,12 @@ const Board = (props) => {
             // Random puzzle with default settings
             game.genPuzzle();
         }
-        setCurrInputs(game.getCurrInputs().data);
+        setCurrInputs(game.getInputs().data);
     }, []);
 
     function handleClick() {
         setStatus(game.process(inputRef.current.value));
-        setCurrInputs(game.getCurrInputs().data);
+        setCurrInputs(game.getInputs().data);
         inputRef.current.value = "";
     }
 
@@ -35,7 +35,7 @@ const Board = (props) => {
 
     return (
         <div>
-            <div>{game.getHints().data}</div>
+            <div>{game.getKeys().data}</div>
             <div>{`${currInputs}`}</div>
             <div>{`${status.data}`}</div>
             <div>

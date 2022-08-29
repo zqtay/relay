@@ -14,3 +14,9 @@ export const MIN_OVERLAP_LENGTH = 1;
 export const MAX_OVERLAP_LENGTH = 3;
 export const MIN_STEPS = 3;
 export const MAX_STEPS = 8;
+
+export const MODE_DEFAULT = {
+    wordLen: WORD_LENGTH_DEFAULT,
+    overlapLen: OVERLAP_LENGTH_DEFAULT,
+    maxSteps: MAX_STEPS_DEFAULT
+};

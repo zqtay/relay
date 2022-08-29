@@ -1,38 +1,38 @@
 import { Buffer } from "buffer";
-import dict from "./dict.json";
+import fullDict from "./dict.json";
 import {
     MAGIC_SUCCESS,
     MAGIC_FAILED,
-    WORD_LENGTH_DEFAULT,
-    OVERLAP_LENGTH_DEFAULT,
-    MAX_STEPS_DEFAULT,
     MIN_WORD_LENGTH,
     MAX_WORD_LENGTH,
     MIN_OVERLAP_LENGTH,
     MAX_OVERLAP_LENGTH,
     MIN_STEPS,
-    MAX_STEPS
+    MAX_STEPS,
+    MODE_DEFAULT
 } from "./GameConst";
 
 const GEN_PUZZLE_TIMEOUT = 2000; // in ms
 
 class Game {
     mode;
-    startWord;
-    endWord;
     solution;
-    hints;
-    currDict;
-    currStep;
-    currInputs;
+    keys;
+    dict;
+    state;
+
+    constructor() {
+        this.mode = MODE_DEFAULT;
+        this.state = {
+            step: 0,
+            inputs: [],
+            hints: []
+        };
+    }
 
     genPuzzle(settings = { mode: null, solution: null }) {
         if (settings.mode == null) {
-            this.mode = {
-                wordLen: WORD_LENGTH_DEFAULT,
-                overlapLen: OVERLAP_LENGTH_DEFAULT,
-                maxSteps: MAX_STEPS_DEFAULT
-            };
+            this.mode = MODE_DEFAULT;
         }
         else {
             // Check game settings limit
@@ -46,28 +46,24 @@ class Game {
                 return this.result(MAGIC_FAILED, "Invalid mode");
             }
 
-            this.mode = {
-                wordLen: settings.mode.wordLen,
-                overlapLen: settings.mode.overlapLen,
-                maxSteps: settings.mode.maxSteps,
-            };
+            this.mode = { ...settings.mode };
         }
 
         if (settings.solution == null) {
-            this.currDict = dict[this.mode.wordLen];
+            this.dict = fullDict[this.mode.wordLen];
             let filteredDict = null;
             let deadEnd = [];
             this.solution = Array(this.mode.maxSteps).fill("");
 
             // Manual timeout break
             let elapsedTime = 0;
-            const startTime =  Date.now();
+            const startTime = Date.now();
 
             // Recursive loop
             let i = 0;
             while (i < this.mode.maxSteps) {
                 if (i === 0) {
-                    this.solution[i] = this.getRandomItem(this.currDict);
+                    this.solution[i] = this.getRandomItem(this.dict);
                     i++;
                 }
                 else {
@@ -76,7 +72,7 @@ class Game {
                     // Get the list of words starting with the ending of the previous word
                     // and excluding those that were identified to lead to dead end
                     // and excluding duplicates 
-                    filteredDict = this.currDict.filter(e => e.startsWith(prevEnd))
+                    filteredDict = this.dict.filter(e => e.startsWith(prevEnd))
                         .filter(e => !deadEnd.includes(e))
                         .filter(e => !this.solution.includes(e));
                     if (filteredDict.length > 0) {
@@ -94,7 +90,7 @@ class Game {
                         i--;
                     }
                 }
-                if (deadEnd.length === dict.length) {
+                if (deadEnd.length === this.dict.length) {
                     return this.result(MAGIC_FAILED, "No solution found");
                 }
                 elapsedTime = Date.now() - startTime;
@@ -106,18 +102,18 @@ class Game {
         else {
             // Get from settings
             this.solution = [...settings.solution];
-            this.currDict = dict[this.mode.wordLen];
+            this.dict = fullDict[this.mode.wordLen];
         }
 
-        this.startWord = this.solution[0].slice(0, this.mode.overlapLen);
-        this.endWord = this.solution.at(-1).slice(-this.mode.overlapLen);
-        this.hints = this.solution.join("").slice(this.mode.overlapLen, -this.mode.overlapLen);
-        this.hints = [...new Set(this.hints.split(""))].sort();
-        this.currStep = 0;
-        this.currInputs = Array(this.mode.maxSteps).fill("");
-        this.currInputs[0] = this.startWord;
-        this.currInputs[this.mode.maxSteps - 1] = this.endWord;
-
+        this.keys = this.solution.join("").slice(this.mode.overlapLen, -this.mode.overlapLen);
+        this.keys = [...new Set(this.keys.split(""))].sort();
+        this.state.step = 0;
+        this.state.hints = Array(this.mode.maxSteps).fill(' '.repeat(this.mode.wordLen));
+        // Start word
+        this.state.hints[0] = this.solution[0].slice(0, this.mode.overlapLen) + ' '.repeat(this.mode.wordLen - this.mode.overlapLen);
+        // End word
+        this.state.hints[this.mode.maxSteps - 1] = ' '.repeat(this.mode.wordLen - this.mode.overlapLen) + this.solution.at(-1).slice(-this.mode.overlapLen);
+        this.state.inputs = [...this.state.hints];
         return this.result(MAGIC_SUCCESS, "New puzzle");
     }
 
@@ -145,71 +141,70 @@ class Game {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
 
-        // Check the word in dictionary
-        if (!this.currDict.includes(input)) {
-            return this.result(MAGIC_FAILED, "Not in dict");
-        }
-
-        // Check starting and ending words
-        if (this.currStep === 0) {
-            if (!input.startsWith(this.startWord)) {
+        // Check given hints
+        let hint = this.state.hints[this.state.step];
+        for (let index = 0; index < this.mode.wordLen; index++) {
+            if (hint[index] !== " " && input[index] !== hint[index]) {
                 return this.result(MAGIC_FAILED, "Word not match");
             }
-            input = input.slice(this.mode.overlapLen);
-        }
-        else if (this.currStep === (this.mode.maxSteps - 1)) {
-            if (!input.endsWith(this.endWord)) {
-                return this.result(MAGIC_FAILED, "Word not match");
-            }
-            input = input.slice(0, -this.mode.overlapLen);
         }
 
-        // Check input with available hints
+        // Check input with given chars
         let invalidChar = "";
-        input.split("").forEach((a) => {
-            if (!this.hints.includes(a)) {
-                // Return the invalid alphabet
+        input.split("").forEach((a, i) => {
+            if (hint[i] === a) {
+                // Skip checking if same as hint
+                return;
+            }
+            if (!this.keys.includes(a)) {
+                // Return the invalid char
                 if (!invalidChar.includes(a)) {
                     invalidChar += a;
                 }
             }
         });
+        if (invalidChar !== "") {
+            return this.result(MAGIC_FAILED, "Invalid characters: " + invalidChar);
+        }
 
-        return (invalidChar === "") ?
-            this.result(MAGIC_SUCCESS, "Valid input") :
-            this.result(MAGIC_FAILED, "Invalid alphabet: " + invalidChar);
+        // Check the word in dictionary
+        if (!this.dict.includes(input)) {
+            return this.result(MAGIC_FAILED, "Not in dict");
+        }
+
+        return this.result(MAGIC_SUCCESS, "Valid input");  
     }
 
     validateAll() {
         // Backup currStep
-        let currStepBackup = this.currStep;
+        let currStepBackup = this.state.step;
 
         // Sanity check
-        if (this.currInputs.length !== this.mode.maxSteps) {
+        if (this.state.inputs.length !== this.mode.maxSteps) {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
 
-        for (const [index, input] of this.currInputs.entries()) {
-            this.setCurrStep(index);
+        for (const [index, input] of this.state.inputs.entries()) {
+            this.setStep(index);
             // Check for duplicates
-            if (this.currInputs.filter(e => input === e).length > 1) {
+            if (this.state.inputs.filter(e => input === e).length > 1) {
                 // Restore currStep
-                this.currStep = currStepBackup;
+                this.state.step = currStepBackup;
                 return this.result(MAGIC_FAILED, `Duplicate words: ${input}`);
             }
             // Check each input
             if (this.validateInput(input).status !== MAGIC_SUCCESS) {
                 // Restore currStep
-                this.currStep = currStepBackup;
+                this.state.step = currStepBackup;
                 return this.result(MAGIC_FAILED, `Invalid word: ${input}`);
             }
             if (index >= 1) {
                 // Check current input's beginning is the same as 
                 // previous input's ending
-                if (!input.startsWith(this.currInputs[index - 1].slice(-this.mode.overlapLen))) {
+                if (!input.startsWith(this.state.inputs[index - 1].slice(-this.mode.overlapLen))) {
                     // Restore currStep
-                    this.currStep = currStepBackup;
-                    return this.result(MAGIC_FAILED, `Word not match: ${this.currInputs[index - 1]}, ${input}`);
+                    this.state.step = currStepBackup;
+                    return this.result(MAGIC_FAILED, `Word not match: ${this.state.inputs[index - 1]}, ${input}`);
                 }
             }
         }
@@ -219,14 +214,14 @@ class Game {
     setInput(input) {
         let res = this.validateInput(input);
         if (res.status === MAGIC_SUCCESS) {
-            this.currInputs[this.currStep] = input;
+            this.state.inputs[this.state.step] = input;
         }
         return res;
     }
 
-    setCurrStep(step) {
+    setStep(step) {
         if (step >= 0 && step < this.mode.maxSteps) {
-            this.currStep = step;
+            this.state.step = step;
             return this.result(MAGIC_SUCCESS, "Switched to " + step);
         }
         return this.result(MAGIC_FAILED, "Invalid step");
@@ -236,12 +231,16 @@ class Game {
         return this.result(MAGIC_SUCCESS, this.mode);
     }
 
-    getCurrInputs() {
-        return this.result(MAGIC_SUCCESS, this.currInputs)
+    getHints() {
+        return this.result(MAGIC_SUCCESS, this.state.hints)
     }
 
-    getHints() {
-        return this.result(MAGIC_SUCCESS, this.hints)
+    getInputs() {
+        return this.result(MAGIC_SUCCESS, this.state.inputs)
+    }
+
+    getKeys() {
+        return this.result(MAGIC_SUCCESS, this.keys)
     }
 
     getSolution() {
@@ -256,9 +255,9 @@ class Game {
         const overlap = this.mode.overlapLen;
         try {
             for (const [index, word] of this.solution.entries()) {
-                if(index === 0) {
+                if (index === 0) {
                     solStr += word;
-                } 
+                }
                 else {
                     solStr += word.slice(overlap);
                 }
@@ -272,7 +271,7 @@ class Game {
     }
 
     getSettingsFromEncoded(encoded) {
-        let settings = {mode: {wordLen: -1, overlapLen: -1, maxSteps: -1}, solution: []};
+        let settings = { mode: { wordLen: -1, overlapLen: -1, maxSteps: -1 }, solution: [] };
         try {
             let textArray = encoded.split(",");
             // Mode
@@ -318,7 +317,7 @@ class Game {
                 return this.genPuzzle();
             default:
                 if (!isNaN(parseInt(input))) {
-                    return this.setCurrStep(parseInt(input));
+                    return this.setStep(parseInt(input));
                 }
                 else {
                     return this.setInput(input);
