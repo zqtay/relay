@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, memo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Game from "../../game/Game";
-const game = new Game();
+import { CurrentGame } from "../../game/Game";
 
 const Board = (props) => {
     const [currInputs, setCurrInputs] = useState([]);
@@ -12,18 +11,18 @@ const Board = (props) => {
 
     useEffect(() => {
         if ((puzzleSettings = searchParams.get("puzzle")) !== null) {
-            game.genPuzzleFromEncoded(puzzleSettings);
+            CurrentGame.genPuzzleFromEncoded(puzzleSettings);
         }
         else {
             // Random puzzle with default settings
-            game.genPuzzle();
+            CurrentGame.genPuzzle();
         }
-        setCurrInputs(game.getInputs().data);
+        setCurrInputs(CurrentGame.getInputs().data);
     }, []);
 
     function handleClick() {
-        setStatus(game.process(inputRef.current.value));
-        setCurrInputs(game.getInputs().data);
+        setStatus(CurrentGame.process(inputRef.current.value));
+        setCurrInputs(CurrentGame.getInputs().data);
         inputRef.current.value = "";
     }
 
@@ -35,7 +34,7 @@ const Board = (props) => {
 
     return (
         <div>
-            <div>{game.getKeys().data}</div>
+            <div>{CurrentGame.getKeys().data}</div>
             <div>{`${currInputs}`}</div>
             <div>{`${status.data}`}</div>
             <div>

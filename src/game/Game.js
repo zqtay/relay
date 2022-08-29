@@ -350,4 +350,9 @@ class Game {
     }
 }
 
-export default Game;
+const CurrentGame = new Game();
+
+export {
+    Game,
+    CurrentGame
+};

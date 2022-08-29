@@ -4,11 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Dialog from "../UI/Dialog";
 import Slider from "../UI/Slider";
 
-import Game from "../../game/Game";
+import { Game, CurrentGame } from "../../game/Game";
 import {
-    WORD_LENGTH_DEFAULT,
-    OVERLAP_LENGTH_DEFAULT,
-    MAX_STEPS_DEFAULT,
     MIN_WORD_LENGTH,
     MAX_WORD_LENGTH,
     MIN_OVERLAP_LENGTH,
@@ -36,6 +33,9 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
     useEffect(() => {
         setStatus(null);
         setIsLoading(false);
+        inputWordLengthRef.current.defaultValue = CurrentGame.getMode().data.wordLen;
+        inputOverlapLengthRef.current.defaultValue = CurrentGame.getMode().data.overlapLen;
+        inputNoOfWordsRef.current.defaultValue = CurrentGame.getMode().data.maxSteps;
     }, [show]);
 
     const content =
@@ -43,9 +43,6 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
             inputWordLengthRef={inputWordLengthRef}
             inputOverlapLengthRef={inputOverlapLengthRef}
             inputNoOfWordsRef={inputNoOfWordsRef}
-            dvWordLength={WORD_LENGTH_DEFAULT}
-            dvOverlapLength={OVERLAP_LENGTH_DEFAULT}
-            dvNoOfWords={MAX_STEPS_DEFAULT}
         />;
 
     const btnConfirmOnClick = () => {
@@ -98,11 +95,11 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
 const Settings = ({ inputWordLengthRef, inputOverlapLengthRef, inputNoOfWordsRef, dvWordLength, dvOverlapLength, dvNoOfWords }) => {
     return (
         <div className="">
-            <Slider title="Word length" id={ID_INPUT_WORD_LENGTH} min={MIN_WORD_LENGTH} max={MAX_WORD_LENGTH} defaultValue={dvWordLength} _ref={inputWordLengthRef} />
+            <Slider title="Word length" id={ID_INPUT_WORD_LENGTH} min={MIN_WORD_LENGTH} max={MAX_WORD_LENGTH} _ref={inputWordLengthRef} />
             <hr />
-            <Slider title="Overlapping characters" id={ID_INPUT_OVERLAP_LENGTH} min={MIN_OVERLAP_LENGTH} max={MAX_OVERLAP_LENGTH} defaultValue={dvOverlapLength} _ref={inputOverlapLengthRef} />
+            <Slider title="Overlapping characters" id={ID_INPUT_OVERLAP_LENGTH} min={MIN_OVERLAP_LENGTH} max={MAX_OVERLAP_LENGTH} _ref={inputOverlapLengthRef} />
             <hr />
-            <Slider title="Number of words" id={ID_INPUT_NO_OF_WORDS} min={MIN_STEPS} max={MAX_STEPS} defaultValue={dvNoOfWords} _ref={inputNoOfWordsRef} />
+            <Slider title="Number of words" id={ID_INPUT_NO_OF_WORDS} min={MIN_STEPS} max={MAX_STEPS} _ref={inputNoOfWordsRef} />
         </div>
     );
 };
@@ -125,7 +122,7 @@ const ButtonCancel = ({ onClick }) => {
 const ButtonConfirm = ({ onClick, isLoading }) => {
     return (
         <button type="button" className="btn btn-primary modal-confirm-button" onClick={onClick} disabled={isLoading}>
-            {isLoading && <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>}
+            {isLoading && <span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>}
             {isLoading && " Loading... "}
             {!isLoading && "Start"}
         </button>
