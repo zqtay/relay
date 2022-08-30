@@ -233,6 +233,11 @@ class Game {
         return this.result(MAGIC_SUCCESS, data);
     }
 
+    clearInput() {
+        this.state.inputs[this.state.step] = this.state.hints[this.state.step];
+        return this.result(MAGIC_SUCCESS, null);
+    }
+
     setInput(input) {
         let res = this.validateInput(input);
         if (res.status === MAGIC_SUCCESS) {
@@ -339,6 +344,8 @@ class Game {
                 return this.genPuzzle();
             case "h":
                 return this.addRandomHint();
+            case "c":
+                return this.clearInput();    
             default:
                 if (!isNaN(parseInt(input))) {
                     return this.setStep(parseInt(input));
