@@ -1,0 +1,81 @@
+.wordbox {
+    background: #00000000;
+    color: #606060FF;
+    font-weight: 500;
+    outline: none;
+    border: 2px solid #FFFFFF00;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
+.wordbox:hover {
+    border: 2px solid #606060FF;
+    -webkit-transition: all 0.1s ease-in;
+    -moz-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+    cursor: pointer;
+}
+
+.wordbox:focus {
+    background: #FFFFFFFF;
+    box-shadow: 0px 0px 15px #00000020;
+    color: #000000FF;
+    font-weight: 650;
+    border: 2px solid #7060FFFF;
+    -webkit-transition: all 0.1s ease-in;
+    -moz-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+
+.charbox {
+    background: #FFFFFF00;
+    border: 2px solid #FFFFFF00;
+    border-bottom: 1px solid #303030FF;
+    margin-left: 3px;
+    margin-right: 3px;
+    text-align: center;
+}
+
+.charbox-hint {
+    background: #00000010;
+    border: 2px solid #FFFFFF00;
+}
+
+.charbox-current {
+    border: 2px solid #7060FFFF;
+}
+
+@media only screen and (max-width: 600px) {
+    .charbox {
+        font-size: 30px;
+        line-height: 45px;
+        height: 45px;
+        width: 45px;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .charbox {
+        font-size: 40px;
+        line-height: 60px;
+        height: 60px;
+        width: 60px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .charbox {
+        font-size: 50px;
+        line-height: 80px;
+        height: 80px;
+        width: 80px;
+    }
+}

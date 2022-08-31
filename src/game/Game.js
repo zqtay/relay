@@ -136,6 +136,8 @@ class Game {
     }
 
     validateInput(input) {
+        input = input.toLowerCase();
+        console.log(`${input} ${input.length} ${this.mode.wordLen}`);
         // Check input length
         if (input.length !== this.mode.wordLen) {
             return this.result(MAGIC_FAILED, "Wrong length");
@@ -182,6 +184,11 @@ class Game {
         // Sanity check
         if (this.state.inputs.length !== this.mode.maxSteps) {
             return this.result(MAGIC_FAILED, "Wrong length");
+        }
+
+        // Check for blanks
+        if (this.state.inputs.some((input) => input.includes(" "))) {
+            return this.result(MAGIC_FAILED, "Missing words");
         }
 
         for (const [index, input] of this.state.inputs.entries()) {

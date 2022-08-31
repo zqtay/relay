@@ -1,0 +1,27 @@
+.board {
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    /* border: 1px;
+    border-style: solid;
+    border-color: black;
+    border-radius: 10px; */
+    margin: auto;
+    width: fit-content;
+}
+
+.board-button {
+    color: white !important;
+    background-color: #2A1CAA !important;
+    font-weight: 500;
+}
+
+.board-button:focus,
+.board-button:hover {
+    background-color: #7060ff !important;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}

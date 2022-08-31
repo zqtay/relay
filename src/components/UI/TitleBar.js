@@ -14,10 +14,10 @@ const TitleBar = (props) => {
                             <TitleBarButton icon="fa-circle-info" onClick={props.onClickHandlers.info} />
                         </li>
                         <li className="nav-item ps-3">
-                            <TitleBarButton icon="fa-dice" onClick={props.onClickHandlers.newGame} />
+                            <TitleBarButton icon="fa-bolt" onClick={props.onClickHandlers.hint} />
                         </li>
                         <li className="nav-item ps-3">
-                            <TitleBarButton icon="fa-gears" onClick={props.onClickHandlers.settings} />
+                            <TitleBarButton icon="fa-dice" onClick={props.onClickHandlers.newGame} />
                         </li>
                     </ul>
                 </div>
