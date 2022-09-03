@@ -4,7 +4,7 @@
 
 .titlebar-button:focus,
 .titlebar-button:hover {
-    color: #2A1CAA;
+    color: #2A1CAAFF;
     transform: scale(1.15);
     -webkit-transition: all 0.2s ease;
     -moz-transition: all 0.2s ease;

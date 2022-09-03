@@ -12,13 +12,13 @@
 
 .board-button {
     color: white !important;
-    background-color: #2A1CAA !important;
+    background-color: #2A1CAAFF !important;
     font-weight: 500;
 }
 
 .board-button:focus,
 .board-button:hover {
-    background-color: #7060ff !important;
+    background-color: #7060FFFF !important;
     -webkit-transition: all 0.2s ease;
     -moz-transition: all 0.2s ease;
     -ms-transition: all 0.2s ease;

@@ -9,7 +9,9 @@ import {
     MAX_OVERLAP_LENGTH,
     MIN_STEPS,
     MAX_STEPS,
-    MODE_DEFAULT
+    MODE_DEFAULT,
+    MODE_EMPTY,
+    STATE_EMPTY,
 } from "./GameConst";
 
 const GEN_PUZZLE_TIMEOUT = 2000; // in ms
@@ -22,12 +24,8 @@ class Game {
     state;
 
     constructor() {
-        this.mode = MODE_DEFAULT;
-        this.state = {
-            step: 0,
-            inputs: [],
-            hints: []
-        };
+        this.mode = MODE_EMPTY;
+        this.state = STATE_EMPTY;
     }
 
     genPuzzle(settings = { mode: null, solution: null }) {
@@ -50,10 +48,12 @@ class Game {
         }
 
         if (settings.solution == null) {
+            // Get dict for this puzzle settings
             this.dict = fullDict[this.mode.wordLen];
+            // Create empty solution array with correct length
+            this.solution = Array(this.mode.maxSteps).fill('');
             let filteredDict = null;
             let deadEnd = [];
-            this.solution = Array(this.mode.maxSteps).fill("");
 
             // Manual timeout break
             let elapsedTime = 0;
@@ -104,15 +104,18 @@ class Game {
             this.solution = [...settings.solution];
             this.dict = fullDict[this.mode.wordLen];
         }
-
+        // Available character keys to solve puzzle
         this.keys = this.solution.join("").slice(this.mode.overlapLen, -this.mode.overlapLen);
         this.keys = [...new Set(this.keys.split(""))].sort();
+        // Initial step
         this.state.step = 0;
+        // Create hints array with filled spaces
         this.state.hints = Array(this.mode.maxSteps).fill(' '.repeat(this.mode.wordLen));
         // Start word
         this.state.hints[0] = this.solution[0].slice(0, this.mode.overlapLen) + ' '.repeat(this.mode.wordLen - this.mode.overlapLen);
         // End word
         this.state.hints[this.mode.maxSteps - 1] = ' '.repeat(this.mode.wordLen - this.mode.overlapLen) + this.solution.at(-1).slice(-this.mode.overlapLen);
+        // Set inputs array same as hints array
         this.state.inputs = [...this.state.hints];
         return this.result(MAGIC_SUCCESS, "New puzzle");
     }
@@ -263,6 +266,10 @@ class Game {
 
     getMode() {
         return this.result(MAGIC_SUCCESS, this.mode);
+    }
+
+    getState() {
+        return this.result(MAGIC_SUCCESS, this.state);
     }
 
     getHints() {

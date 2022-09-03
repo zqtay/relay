@@ -5,16 +5,13 @@ import "./TitleBar.css"
 
 const TitleBar = (props) => {
     return (
-        <nav className="navbar navbar-expand bg-light sticky-top shadow-sm">
+        <nav className="navbar navbar-expand bg-light">
             <div className="container">
                 <Link className="navbar-brand" to="/">{props.title}</Link>
                 <div className="collapse navbar-collapse">
                     <ul className="navbar-nav ms-auto align-self-center">
                         <li className="nav-item ps-3">
                             <TitleBarButton icon="fa-circle-info" onClick={props.onClickHandlers.info} />
-                        </li>
-                        <li className="nav-item ps-3">
-                            <TitleBarButton icon="fa-bolt" onClick={props.onClickHandlers.hint} />
                         </li>
                         <li className="nav-item ps-3">
                             <TitleBarButton icon="fa-dice" onClick={props.onClickHandlers.newGame} />
