@@ -146,6 +146,11 @@ class Game {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
 
+        // Check blanks
+        if (input.includes(" ")) {
+            return this.result(MAGIC_FAILED, "Missing chars");
+        }
+
         // Check given hints
         let hint = this.state.hints[this.state.step];
         for (let index = 0; index < this.mode.wordLen; index++) {
@@ -221,23 +226,33 @@ class Game {
         return this.result(MAGIC_SUCCESS, "Puzzle solved");
     }
 
-    addRandomHint() {
+    addHint(charIndex = null) {
         let hints = [];
         const hint = this.state.hints[this.state.step];
         const input = this.state.inputs[this.state.step];
-        this.solution[this.state.step].split("").forEach(
-            (a, i) => {
-                if (hint[i] === " ") {
-                    hints.push({ index: i, hint: a });
+        let data = null;
+        if (charIndex === null) {
+            // Get random hint
+            this.solution[this.state.step].split("").forEach(
+                (a, i) => {
+                    if (hint[i] === " ") {
+                        hints.push({ index: i, hint: a });
+                    }
                 }
+            );
+
+            if (hints.length === 0) {
+                return this.result(MAGIC_FAILED, "No available hints");
             }
-        );
 
-        if (hints.length === 0) {
-            return this.result(MAGIC_FAILED, "No available hints");
+            data =  this.getRandomItem(hints);
         }
-
-        let data = this.getRandomItem(hints);
+        else {
+            if (charIndex < 0 || charIndex >= this.mode.wordLen) {
+                this.result(MAGIC_FAILED, "Invalid char index");
+            }
+            data = {index: charIndex, hint: this.solution[this.state.step][charIndex]};
+        }
         this.state.hints[this.state.step] = hint.slice(0, data.index) + data.hint + hint.slice(data.index + 1);
         this.state.inputs[this.state.step] = input.slice(0, data.index) + data.hint + input.slice(data.index + 1);
         return this.result(MAGIC_SUCCESS, data);

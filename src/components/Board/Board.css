@@ -1,11 +1,6 @@
 .board {
-
     padding-top: 10px;
     padding-bottom: 10px;
-    /* border: 1px;
-    border-style: solid;
-    border-color: black;
-    border-radius: 10px; */
     margin: auto;
     width: fit-content;
 }
@@ -13,6 +8,7 @@
 .board-button {
     color: white !important;
     background-color: #2A1CAAFF !important;
+    margin: 0px 2px 0px;
     font-weight: 500;
 }
 

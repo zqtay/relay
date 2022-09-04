@@ -37,8 +37,8 @@
 
 .charbox {
     background: #FFFFFF00;
-    border-top: 2px solid #FFFFFF00;
-    border-bottom: 2px solid #606060FF;
+    border: 2px solid #FFFFFF00;
+    border-bottom-color: #606060FF;
     margin-left: 3px;
     margin-right: 3px;
     text-align: center;
@@ -50,7 +50,7 @@
 }
 
 .charbox-hint {
-    border: 2px solid #FFFFFF00;
+    border-color: #FFFFFF00;
     background: #00000010;
     color: #606060FF;
     -webkit-transition: all 0.05s ease-in;
@@ -61,8 +61,7 @@
 }
 
 .charbox-overlap {
-    border-bottom-width: 5px;
-    border-bottom-style: double;
+    border-bottom: 5px double #606060FF;;
     -webkit-transition: all 0.05s ease-in;
     -moz-transition: all 0.05s ease-in;
     -ms-transition: all 0.05s ease-in;
@@ -71,10 +70,7 @@
 }
 
 .charbox:hover {
-    border-top: 2px solid #C0C0C0FF;
-    border-left: 2px solid #C0C0C0FF;
-    border-right: 2px solid #C0C0C0FF;
-    border-bottom-color: #C0C0C0FF;
+    border-color: #C0C0C0FF;
     -webkit-transition: all 0.05s ease-in;
     -moz-transition: all 0.05s ease-in;
     -ms-transition: all 0.05s ease-in;
@@ -84,20 +80,12 @@
 
 .charbox-current,
 .charbox:focus {
-    border-top: 2px solid #7060FFFF !important;
-    border-left: 2px solid #7060FFFF !important;
-    border-right: 2px solid #7060FFFF !important;
-    border-bottom-color: #7060FFFF !important;
+    border-color: #7060FFFF !important;
     -webkit-transition: all 0.05s ease-in;
     -moz-transition: all 0.05s ease-in;
     -ms-transition: all 0.05s ease-in;
     -o-transition: all 0.05s ease-in;
     transition: all 0.05s ease-in;
-}
-
-@keyframes fontZoom {
-    from {font-size: 120%;}
-    to {font-size: 100%;}
 }
 
 @keyframes fadeIn {

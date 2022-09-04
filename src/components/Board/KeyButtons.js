@@ -1,12 +1,13 @@
+import "./KeyButtons.css";
+
 const KeyButtons = ({ keys, boardRef, currWordIndex }) => {
-    const onClickHandler = (key, currWordIndex, event) => {
-        event.preventDefault();
-        const kbEvent = new KeyboardEvent('keydown', { key: key });
+    const handleClick = (key, e) => {
+        const kbEvent = new KeyboardEvent('keydown_buttons', { key: key });
         const wordBox = boardRef.current.getElementsByClassName("wordbox")[currWordIndex];
         wordBox.dispatchEvent(kbEvent);
     };
 
-    const onMouseDownHandler = (e) => {
+    const handleMouseDown = (e) => {
         e.preventDefault();
     };
 
@@ -15,7 +16,7 @@ const KeyButtons = ({ keys, boardRef, currWordIndex }) => {
             {
                 keys.map(
                     (a, i) =>
-                        <div key={i} className="btn btn-light btn-lg mx-2 my-2" onClick={(e) => onClickHandler(a, currWordIndex, e)} onMouseDown={onMouseDownHandler}>
+                        <div key={i} className="btn key-button" onClick={(e) => handleClick(a, e)} onMouseDown={handleMouseDown}>
                             {a.toUpperCase()}
                         </div>
                 )
