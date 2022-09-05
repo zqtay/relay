@@ -65,8 +65,8 @@ const Board = (props) => {
     };
 
     return (
-        <div className="container">
-            <div className="board" ref={boardRef}>
+        <div className="container board">
+            <div className="board-panel" ref={boardRef}>
                 {CurrentGame.getInputs().data.map(
                     (a, i) =>
                         <WordBox
@@ -79,10 +79,12 @@ const Board = (props) => {
                         />
                 )}
             </div>
-            <div>{`${status.data}`}</div>
-            <KeyButtons keys={currKeys} boardRef={boardRef} currWordIndex={currState.step}/>
-            <div className="btn board-button board-hint-button" onClick={handleGetHint} onMouseDown={handleMouseDown}>Hint</div>
-            <div className="btn board-button board-submit-button" onClick={handleSubmit} onDoubleClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
+            <div className="board-control">
+                <div>{`${status.data}`}</div>
+                <KeyButtons keys={currKeys} boardRef={boardRef} currWordIndex={currState.step} />
+                <div className="btn board-button board-hint-button" onClick={handleGetHint} onMouseDown={handleMouseDown}>Hint</div>
+                <div className="btn board-button board-submit-button" onClick={handleSubmit} onDoubleClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
+            </div>
         </div>
     );
 };

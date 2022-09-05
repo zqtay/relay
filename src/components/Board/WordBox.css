@@ -10,24 +10,37 @@
     flex-wrap: wrap;
     justify-content: center;
     align-content: center;
-}
-
-.wordbox:hover {
-    border: 2px solid #C0C0C0FF;
     -webkit-transition: all 0.1s ease-in;
     -moz-transition: all 0.1s ease-in;
     -ms-transition: all 0.1s ease-in;
     -o-transition: all 0.1s ease-in;
     transition: all 0.1s ease-in;
-    cursor: pointer;
+}
+
+@media (hover: hover) {
+    .wordbox:hover {
+        border: 2px solid #C0C0C0FF;
+        cursor: pointer;
+    }
 }
 
 .wordbox:focus {
-    background: #FFFFFFFF;
     box-shadow: 0px 0px 15px #00000020;
     color: #000000FF;
     font-weight: 650;
     /* border: 2px solid #7060FFFF; */
+}
+
+/* Charbox text */
+.charbox {
+    background: #FFFFFF00;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.charbox > .charbox-text {
+    border: 2px solid #FFFFFF00;
+    text-align: center;
     -webkit-transition: all 0.1s ease-in;
     -moz-transition: all 0.1s ease-in;
     -ms-transition: all 0.1s ease-in;
@@ -35,66 +48,58 @@
     transition: all 0.1s ease-in;
 }
 
-.charbox {
-    background: #FFFFFF00;
-    border: 2px solid #FFFFFF00;
-    border-bottom-color: #606060FF;
-    margin-left: 3px;
-    margin-right: 3px;
-    text-align: center;
-    -webkit-animation: fadeIn 0.3s ease-in;
-    -moz-animation: fadeIn 0.3s ease-in;
-    -ms-animation: fadeIn 0.3s ease-in;
-    -o-animation: fadeIn 0.3s ease-in;
-    animation: fadeIn 0.3s ease-in;
-}
-
-.charbox-hint {
+.charbox-hint > .charbox-text {
     border-color: #FFFFFF00;
     background: #00000010;
     color: #606060FF;
-    -webkit-transition: all 0.05s ease-in;
-    -moz-transition: all 0.05s ease-in;
-    -ms-transition: all 0.05s ease-in;
-    -o-transition: all 0.05s ease-in;
-    transition: all 0.05s ease-in;
 }
 
-.charbox-overlap {
-    border-bottom: 5px double #606060FF;;
-    -webkit-transition: all 0.05s ease-in;
-    -moz-transition: all 0.05s ease-in;
-    -ms-transition: all 0.05s ease-in;
-    -o-transition: all 0.05s ease-in;
-    transition: all 0.05s ease-in;
-}
-
-.charbox:hover {
+.charbox:hover > .charbox-text {
     border-color: #C0C0C0FF;
-    -webkit-transition: all 0.05s ease-in;
-    -moz-transition: all 0.05s ease-in;
-    -ms-transition: all 0.05s ease-in;
-    -o-transition: all 0.05s ease-in;
-    transition: all 0.05s ease-in;
 }
 
-.charbox-current,
-.charbox:focus {
+.charbox-current > .charbox-text,
+.charbox:focus > .charbox-text {
     border-color: #7060FFFF !important;
-    -webkit-transition: all 0.05s ease-in;
-    -moz-transition: all 0.05s ease-in;
-    -ms-transition: all 0.05s ease-in;
-    -o-transition: all 0.05s ease-in;
-    transition: all 0.05s ease-in;
 }
 
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
+/* Underline */
+.charbox-underline {
+    margin-top: -2px;
+    width: 100%;
+    background: #606060FF;
+    -webkit-transition: all 0.1s ease-in;
+    -moz-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
 
+.charbox > .charbox-underline {
+    height: 2px;
+}
+
+.charbox-hint > .charbox-underline {
+    background-color: #FFFFFF00;
+}
+
+.charbox-overlap > .charbox-underline {
+    background: #606060FF;
+    height: 5px;
+}
+
+.charbox:hover > .charbox-underline {
+    background: #C0C0C0FF;
+}
+
+.charbox-current > .charbox-underline,
+.charbox:focus > .charbox-underline {
+    background: #7060FFFF !important;
+}
+
+/* Box size */
 @media only screen and (max-width: 600px) {
-    .charbox {
+    .charbox-text {
         font-size: 30px;
         line-height: 45px;
         height: 45px;
@@ -103,7 +108,7 @@
 }
 
 @media only screen and (min-width: 600px) {
-    .charbox {
+    .charbox-text {
         font-size: 40px;
         line-height: 60px;
         height: 60px;
@@ -112,7 +117,7 @@
 }
 
 @media only screen and (min-width: 768px) {
-    .charbox {
+    .charbox-text {
         font-size: 50px;
         line-height: 80px;
         height: 80px;

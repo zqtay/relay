@@ -80,7 +80,14 @@ const CharBoxes = ({ charArray, selectedCharIndex, hint, wordIndex, mode, select
     let className = null;
     for (let i = 0; i < charArray.length; i++) {
         className = charBoxClass(i, selectedCharIndex, hint[i], wordIndex, mode);
-        boxes.push(<span key={i} className={className} onClick={() => { selectChar(i) }}>{charArray[i].toUpperCase()}</span>);
+        boxes.push(
+            <div className={className} key={i} onClick={() => selectChar(i)}>
+                <div className="charbox-text">
+                    {charArray[i].toUpperCase()}
+                </div>
+                <div className="charbox-underline"></div>
+            </div>
+        );
     }
     return (
         <>
