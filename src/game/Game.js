@@ -140,7 +140,7 @@ class Game {
 
     validateInput(input) {
         input = input.toLowerCase();
-        console.log(`${input} ${input.length} ${this.mode.wordLen}`);
+        // console.log(`${input} ${input.length} ${this.mode.wordLen}`);
         // Check input length
         if (input.length !== this.mode.wordLen) {
             return this.result(MAGIC_FAILED, "Wrong length");
@@ -226,14 +226,17 @@ class Game {
         return this.result(MAGIC_SUCCESS, "Puzzle solved");
     }
 
-    addHint(charIndex = null) {
+    addHint(wordIndex = null, charIndex = null) {
+        if (wordIndex === null || wordIndex < 0 || wordIndex >= this.mode.maxSteps) {
+            return this.result(MAGIC_FAILED, "Invalid word index");
+        }
         let hints = [];
-        const hint = this.state.hints[this.state.step];
-        const input = this.state.inputs[this.state.step];
+        const hint = this.state.hints[wordIndex];
+        // const input = this.state.inputs[wordIndex];
         let data = null;
         if (charIndex === null) {
             // Get random hint
-            this.solution[this.state.step].split("").forEach(
+            this.solution[wordIndex].split("").forEach(
                 (a, i) => {
                     if (hint[i] === " ") {
                         hints.push({ index: i, hint: a });
@@ -251,10 +254,10 @@ class Game {
             if (charIndex < 0 || charIndex >= this.mode.wordLen) {
                 this.result(MAGIC_FAILED, "Invalid char index");
             }
-            data = {index: charIndex, hint: this.solution[this.state.step][charIndex]};
+            data = {index: charIndex, hint: this.solution[wordIndex][charIndex]};
         }
-        this.state.hints[this.state.step] = hint.slice(0, data.index) + data.hint + hint.slice(data.index + 1);
-        this.state.inputs[this.state.step] = input.slice(0, data.index) + data.hint + input.slice(data.index + 1);
+        this.state.hints[wordIndex] = hint.slice(0, data.index) + data.hint + hint.slice(data.index + 1);
+        // this.state.inputs[wordIndex] = input.slice(0, data.index) + data.hint + input.slice(data.index + 1);
         return this.result(MAGIC_SUCCESS, data);
     }
 

@@ -7,12 +7,13 @@ import WordBox from "./WordBox";
 import KeyButtons from "./KeyButtons";
 
 import { CurrentGame } from "../../game/Game";
-import { MODE_EMPTY, STATE_EMPTY } from "../../game/GameConst";
+import { MAGIC_SUCCESS, MODE_EMPTY, STATE_EMPTY } from "../../game/GameConst";
 
 const Board = (props) => {
     const [currMode, setCurrMode] = useState(MODE_EMPTY);
     const [currState, setCurrState] = useState(STATE_EMPTY);
     const [currKeys, setCurrKeys] = useState([]);
+    const [currSelected, setCurrSelected] = useState({wordIndex: -1, charIndex: -1});
     const [status, setStatus] = useState({ res: null, data: "" });
     const [searchParams, setSearchParams] = useSearchParams();
     const boardRef = useRef(null);
@@ -31,33 +32,52 @@ const Board = (props) => {
         setCurrKeys(CurrentGame.getKeys().data);
     }, [searchParams]);
 
-    const setStep = (step) => {
-        setStatus(CurrentGame.setStep(step));
-        setCurrState(CurrentGame.getState().data);
-    };
-
-    const handleWordInput = (input) => {
-        setStatus(CurrentGame.setInput(input));
-        setCurrState(CurrentGame.getState().data);
+    const handleWordInput = (wordIndex, input) => {
+        let res = CurrentGame.setStep(wordIndex);
+        if (res.status !== MAGIC_SUCCESS) {
+            setStatus(res);
+            return;
+        }
+        res = CurrentGame.setInput(input)
+        setStatus(res);
     };
 
     const handleSubmit = () => {
-        const input = boardRef.current.getElementsByClassName("wordbox")[currState.step].textContent;
-        setStatus(CurrentGame.setInput(input));
-        setCurrState(CurrentGame.getState().data);
+        let res = CurrentGame.setStep(currSelected.wordIndex);
+        if (res.status !== MAGIC_SUCCESS) {
+            setStatus(res);
+            return;
+        }
+        const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
+        res = CurrentGame.setInput(input)
+        setStatus(res);
     };
 
     const handleSolve = () => {
         setStatus(CurrentGame.validateAll());
     };
 
-    const handleGetSolution = () => {
-        setStatus(CurrentGame.getSolution());
-    };
-
     const handleGetHint = () => {
-        setStatus(CurrentGame.addHint());
-        setCurrState(CurrentGame.getState().data);
+        console.log(currSelected);
+        let res = null;
+        if (currSelected.charIndex === -1) {
+            // Random hint
+            res = CurrentGame.addHint(currSelected.wordIndex);
+        }
+        else {
+            res = CurrentGame.addHint(currSelected.wordIndex, currSelected.charIndex);
+        }
+
+        if (res.status === MAGIC_SUCCESS) {
+            const newState = {...currState};
+            const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
+            newState.hints = [...CurrentGame.getState().data.hints];
+            newState.inputs[currSelected.wordIndex] = input.slice(0, res.data.index) + res.data.hint + input.slice(res.data.index + 1);
+            setCurrState(newState);
+        }
+        else {
+            setStatus(res);
+        }
     };
 
     const handleMouseDown = (e) => {
@@ -74,14 +94,14 @@ const Board = (props) => {
                             wordIndex={i}
                             mode={currMode}
                             state={currState}
-                            setStep={setStep}
+                            setSelected={setCurrSelected}
                             submit={handleWordInput}
                         />
                 )}
             </div>
             <div className="board-control">
                 <div>{`${status.data}`}</div>
-                <KeyButtons keys={currKeys} boardRef={boardRef} currWordIndex={currState.step} />
+                <KeyButtons keys={currKeys} boardRef={boardRef} currWordIndex={currSelected.wordIndex} />
                 <div className="btn board-button board-hint-button" onClick={handleGetHint} onMouseDown={handleMouseDown}>Hint</div>
                 <div className="btn board-button board-submit-button" onClick={handleSubmit} onDoubleClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
             </div>

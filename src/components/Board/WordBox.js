@@ -2,58 +2,65 @@ import "./WordBox.css"
 
 import { memo, useEffect, useState, useRef } from "react";
 
-const WordBox = ({ wordIndex, mode, state, setStep, submit }) => {
+const WordBox = ({ wordIndex, mode, state, setSelected, submit }) => {
     const input = state.inputs[wordIndex];
     const hint = state.hints[wordIndex];
     const [selectedCharIndex, setSelectedCharIndex] = useState(-1);
     const [charArray, setCharArray] = useState(input.split(''));
     const wordBoxRef = useRef(null);
 
+    const updateIndex = (charIndex) => {
+        setSelectedCharIndex(charIndex);
+        setSelected({wordIndex: wordIndex, charIndex: charIndex});
+    }
+
     const handleClick = () => {
-        setStep(wordIndex);
+        setSelected((prev) => ({...prev, wordIndex: wordIndex}));
     };
 
     const handleBlur = () => {
         setSelectedCharIndex(-1);
+        setSelected({wordIndex: -1, charIndex: -1});
     };
 
     const selectChar = (index) => {
-        setSelectedCharIndex(index);
+        updateIndex(index);
     }
 
     const handleKeyDown = (e) => {
-        console.log(`${e.key.toLowerCase()} ${wordIndex} ${selectedCharIndex} ${charArray}`);
+        // console.log(`${e.key.toLowerCase()} ${wordIndex} ${selectedCharIndex} ${charArray}`);
         if (selectedCharIndex >= mode.wordLen || selectedCharIndex < 0) return;
+
         let key = e.key.toLowerCase();
         let newArray = [...charArray];
+        let charIndex = selectedCharIndex;
         if (key.length === 1) {
             // Only set char if index is within range and hint not exist
-            if (selectedCharIndex < mode.wordLen && hint[selectedCharIndex] === ' ') {
-                newArray[selectedCharIndex] = key;
+            if (charIndex < mode.wordLen && hint[charIndex] === ' ') {
+                newArray[charIndex] = key;
                 setCharArray(newArray);
             }
-            if (selectedCharIndex < mode.wordLen - 1) setSelectedCharIndex(i => i + 1);
+            if (charIndex < mode.wordLen - 1) charIndex++;
         }
         else if (key === 'delete' || key === 'backspace') {
             // Skip deleting hints
-            if (hint[selectedCharIndex] === ' ') {
-                newArray[selectedCharIndex] = ' ';
+            if (hint[charIndex] === ' ') {
+                newArray[charIndex] = ' ';
                 setCharArray(newArray);
             }
-            if (key === 'backspace' && selectedCharIndex > 0) setSelectedCharIndex(i => i - 1);
+            if (key === 'backspace' && charIndex > 0) charIndex--;
         }
         else if (key === 'enter') {
-            // Redundancy
-            setStep(wordIndex);
-            submit(charArray.join(''));
-            setSelectedCharIndex(0);
+            submit(wordIndex, charArray.join(''));
         }
         else if (key === 'arrowleft') {
-            if (selectedCharIndex > 0) setSelectedCharIndex(i => i - 1);
+            if (charIndex > 0) charIndex--;
         }
         else if (key === 'arrowright') {
-            if (selectedCharIndex < (mode.wordLen - 1)) setSelectedCharIndex(i => i + 1);
+            if (charIndex < (mode.wordLen - 1)) charIndex++;
         }
+        // Update selectedCharIndex and currSelected
+        updateIndex(charIndex);
     };
 
     useEffect(() => {
