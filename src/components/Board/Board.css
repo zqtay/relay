@@ -10,6 +10,7 @@
 }
 
 .board-panel {
+    outline: none;
     margin: auto;
     width: fit-content;
 }

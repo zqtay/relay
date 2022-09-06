@@ -24,7 +24,7 @@
     }
 }
 
-.wordbox:focus {
+.wordbox-selected {
     box-shadow: 0px 0px 15px #00000020;
     color: #000000FF;
     font-weight: 650;
@@ -58,8 +58,7 @@
     border-color: #C0C0C0FF;
 }
 
-.charbox-current > .charbox-text,
-.charbox:focus > .charbox-text {
+.charbox-selected > .charbox-text {
     border-color: #7060FFFF !important;
 }
 
@@ -92,18 +91,26 @@
     background: #C0C0C0FF;
 }
 
-.charbox-current > .charbox-underline,
-.charbox:focus > .charbox-underline {
+.charbox-selected > .charbox-underline {
     background: #7060FFFF !important;
 }
 
 /* Box size */
 @media only screen and (max-width: 600px) {
+    .charbox {
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+
     .charbox-text {
         font-size: 30px;
         line-height: 45px;
         height: 45px;
         width: 45px;
+    }
+
+    .charbox-overlap > .charbox-underline {
+        height: 4px;
     }
 }
 

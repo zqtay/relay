@@ -38,7 +38,7 @@ const Board = (props) => {
         setStatus(res);
     };
 
-    const handleSubmit = () => {
+    const handleValidateInput = () => {
         if (currSelected.wordIndex < 0 || currSelected.wordIndex >= currMode.noOfWords) return;
         const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
         let res = CurrentGame.validateInput(currSelected.wordIndex, input);
@@ -76,9 +76,63 @@ const Board = (props) => {
         e.preventDefault();
     };
 
+    const handleKey = (e) => {
+        // console.log(`${e.key.toLowerCase()} ${wordIndex} ${selectedCharIndex} ${charArray}`);
+        let wordIndex = currSelected.wordIndex;
+        let charIndex = currSelected.charIndex;
+        if (charIndex >= currMode.wordLen || charIndex < 0) return;
+
+        const key = e.key.toUpperCase();
+        const newInputs = [...currState.inputs];
+        const newInput = newInputs[wordIndex].split('');
+        const hint = currState.hints[wordIndex];
+        if (key.length === 1) {
+            // Only set char if index is within range and hint not exist
+            if (charIndex < currMode.wordLen && hint[charIndex] === ' ') {
+                newInput[charIndex] = key;
+                newInputs[wordIndex] = newInput.join('');
+                setCurrState((prev) => ({...prev, inputs: newInputs}));
+            }
+            if (charIndex < currMode.wordLen - 1) charIndex++;
+        }
+        else if (key === 'DELETE' || key === 'BACKSPACE') {
+            // Skip deleting hints
+            if (hint[charIndex] === ' ') {
+                newInput[charIndex] = ' ';
+                newInputs[wordIndex] = newInput.join('');
+                setCurrState((prev) => ({...prev, inputs: newInputs}));
+            }
+            if (key === 'BACKSPACE' && charIndex > 0) charIndex--;
+        }
+        else if (key === 'ENTER') {
+            handleWordInput(wordIndex, newInput.join(''));
+        }
+        else if (key === 'ARROWLEFT') {
+            if (charIndex > 0) charIndex--;
+        }
+        else if (key === 'ARROWRIGHT') {
+            if (charIndex < (currMode.wordLen - 1)) charIndex++;
+        }
+        else if (key === 'ARROWUP') {
+            if (wordIndex > 0) wordIndex--;
+        }
+        else if (key === 'ARROWDOWN') {
+            if (wordIndex < (currMode.noOfWords - 1)) wordIndex++;;
+        }
+        setCurrSelected({wordIndex: wordIndex, charIndex: charIndex});
+    };
+
+    useEffect(() => {
+        const currentRef = boardRef.current;
+        currentRef.addEventListener('keydown_buttons', handleKey);
+        return () => {
+            currentRef.removeEventListener('keydown_buttons', handleKey);
+        }
+    }, [handleKey]);
+
     return (
         <div className="container board">
-            <div className="board-panel" ref={boardRef}>
+            <div tabIndex={0} className="board-panel" ref={boardRef} onKeyDown={handleKey}>
                 {currState.inputs.map(
                     (a, i) =>
                         <WordBox
@@ -86,8 +140,8 @@ const Board = (props) => {
                             wordIndex={i}
                             mode={currMode}
                             state={currState}
+                            selected={currSelected}
                             setSelected={setCurrSelected}
-                            submit={handleWordInput}
                         />
                 )}
             </div>
@@ -95,7 +149,7 @@ const Board = (props) => {
                 <div>{`${status.data}`}</div>
                 <KeyButtons keys={currKeys} boardRef={boardRef} currWordIndex={currSelected.wordIndex} />
                 <div className="btn board-button board-hint-button" onClick={handleGetHint} onMouseDown={handleMouseDown}>Hint</div>
-                <div className="btn board-button board-submit-button" onClick={handleSubmit} onDoubleClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
+                <div className="btn board-button board-submit-button" onClick={handleValidateInput} onDoubleClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
             </div>
         </div>
     );

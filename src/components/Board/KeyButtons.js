@@ -3,8 +3,7 @@ import "./KeyButtons.css";
 const KeyButtons = ({ keys, boardRef, currWordIndex }) => {
     const handleClick = (key, e) => {
         const kbEvent = new KeyboardEvent('keydown_buttons', { key: key });
-        const wordBox = boardRef.current.getElementsByClassName("wordbox")[currWordIndex];
-        wordBox.dispatchEvent(kbEvent);
+        boardRef.current.dispatchEvent(kbEvent);
     };
 
     const handleMouseDown = (e) => {

@@ -2,95 +2,47 @@ import "./WordBox.css"
 
 import { memo, useEffect, useState, useRef } from "react";
 
-const WordBox = ({ wordIndex, mode, state, setSelected, submit }) => {
-    const input = state.inputs[wordIndex];
+const WordBox = ({ wordIndex, mode, state, selected, setSelected }) => {
+    const input = state.inputs[wordIndex].toUpperCase();
     const hint = state.hints[wordIndex];
-    const [selectedCharIndex, setSelectedCharIndex] = useState(-1);
     const [charArray, setCharArray] = useState(input.split(''));
     const wordBoxRef = useRef(null);
 
-    const updateIndex = (charIndex) => {
-        setSelectedCharIndex(charIndex);
-        setSelected({wordIndex: wordIndex, charIndex: charIndex});
-    }
-
-    const handleClick = () => {
-        setSelected((prev) => ({...prev, wordIndex: wordIndex}));
-    };
-
-    const handleBlur = () => {
-        setSelectedCharIndex(-1);
+    const handleBlurWord = () => {
         setSelected({wordIndex: -1, charIndex: -1});
     };
 
-    const selectChar = (index) => {
-        updateIndex(index);
-    }
-
-    const handleKeyDown = (e) => {
-        // console.log(`${e.key.toLowerCase()} ${wordIndex} ${selectedCharIndex} ${charArray}`);
-        if (selectedCharIndex >= mode.wordLen || selectedCharIndex < 0) return;
-
-        let key = e.key.toLowerCase();
-        let newArray = [...charArray];
-        let charIndex = selectedCharIndex;
-        if (key.length === 1) {
-            // Only set char if index is within range and hint not exist
-            if (charIndex < mode.wordLen && hint[charIndex] === ' ') {
-                newArray[charIndex] = key;
-                setCharArray(newArray);
-            }
-            if (charIndex < mode.wordLen - 1) charIndex++;
-        }
-        else if (key === 'delete' || key === 'backspace') {
-            // Skip deleting hints
-            if (hint[charIndex] === ' ') {
-                newArray[charIndex] = ' ';
-                setCharArray(newArray);
-            }
-            if (key === 'backspace' && charIndex > 0) charIndex--;
-        }
-        else if (key === 'enter') {
-            submit(wordIndex, charArray.join(''));
-        }
-        else if (key === 'arrowleft') {
-            if (charIndex > 0) charIndex--;
-        }
-        else if (key === 'arrowright') {
-            if (charIndex < (mode.wordLen - 1)) charIndex++;
-        }
-        // Update selectedCharIndex and currSelected
-        updateIndex(charIndex);
+    const handleClickWord = () => {
+        setSelected(prev => ({...prev, wordIndex: wordIndex}));
     };
 
-    useEffect(() => {
-        const currentRef = wordBoxRef.current;
-        currentRef.addEventListener('keydown_buttons', handleKeyDown);
-        return () => {
-            currentRef.removeEventListener('keydown_buttons', handleKeyDown);
-        }
-    }, [handleKeyDown]);
+    const updateSelected = (charIndex) => {
+        setSelected({wordIndex: wordIndex, charIndex: charIndex});
+    }
 
     useEffect(() => {
         setCharArray(input.split(''));
     }, [input]);
 
+    let className = "wordbox";
+    if (selected.wordIndex === wordIndex) className += " wordbox-selected";
+
     return (
-        <div tabIndex={0} className="wordbox" ref={wordBoxRef} onKeyDown={handleKeyDown} onClick={handleClick} onBlur={handleBlur}>
-            <CharBoxes charArray={charArray} selectedCharIndex={selectedCharIndex} hint={hint} wordIndex={wordIndex} mode={mode} selectChar={selectChar} />
+        <div tabIndex={0} className={className} ref={wordBoxRef} onClick={handleClickWord} onBlur={handleBlurWord}>
+            <CharBoxes charArray={charArray} wordIndex={wordIndex} selected={selected} hint={hint} mode={mode} updateSelected={updateSelected} />
         </div>
     );
 };
 
-const CharBoxes = ({ charArray, selectedCharIndex, hint, wordIndex, mode, selectChar }) => {
+const CharBoxes = ({ charArray, wordIndex, selected, hint, mode, updateSelected }) => {
     let boxes = [];
     let className = null;
     for (let i = 0; i < charArray.length; i++) {
-        className = charBoxClass(i, selectedCharIndex, hint[i], wordIndex, mode);
+        className = charBoxClass( wordIndex, i, selected, hint[i], mode);
         boxes.push(
-            <div className={className} key={i} onClick={() => selectChar(i)}>
+            <div className={className} key={i} onClick={() => updateSelected(i)}>
                 <div className="charbox-text">
-                    {charArray[i].toUpperCase()}
+                    {charArray[i]}
                 </div>
                 <div className="charbox-underline"></div>
             </div>
@@ -103,7 +55,7 @@ const CharBoxes = ({ charArray, selectedCharIndex, hint, wordIndex, mode, select
     );
 }
 
-const charBoxClass = (charIndex, selectedCharIndex, hintChar, wordIndex, mode) => {
+const charBoxClass = (wordIndex, charIndex, selected, hintChar, mode) => {
     let className = "charbox";
     if (hintChar !== ' ') {
         className += " charbox-hint";
@@ -112,8 +64,8 @@ const charBoxClass = (charIndex, selectedCharIndex, hintChar, wordIndex, mode) =
         (charIndex >= mode.wordLen - mode.overlapLen && wordIndex < mode.noOfWords - 1)) {
         className += " charbox-overlap";
     }
-    if (charIndex === selectedCharIndex) {
-        className += " charbox-current";
+    if (wordIndex === selected.wordIndex && charIndex === selected.charIndex) {
+        className += " charbox-selected";
     }
     return className;
 }
