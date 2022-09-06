@@ -1,6 +1,6 @@
 import "./KeyButtons.css";
 
-const KeyButtons = ({ keys, boardRef, currWordIndex }) => {
+const KeyButtons = ({ keys, boardRef }) => {
     const handleClick = (key, e) => {
         const kbEvent = new KeyboardEvent('keydown_buttons', { key: key });
         boardRef.current.dispatchEvent(kbEvent);

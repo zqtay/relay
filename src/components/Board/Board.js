@@ -13,7 +13,7 @@ const Board = (props) => {
     const [currMode, setCurrMode] = useState(MODE_EMPTY);
     const [currState, setCurrState] = useState(STATE_EMPTY);
     const [currKeys, setCurrKeys] = useState([]);
-    const [currSelected, setCurrSelected] = useState({wordIndex: -1, charIndex: -1});
+    const [currSelected, setCurrSelected] = useState({ wordIndex: -1, charIndex: -1 });
     const [status, setStatus] = useState({ res: null, data: "" });
     const [searchParams, setSearchParams] = useSearchParams();
     const boardRef = useRef(null);
@@ -61,7 +61,7 @@ const Board = (props) => {
         }
 
         if (res.status === MAGIC_SUCCESS) {
-            const newState = {...currState};
+            const newState = { ...currState };
             const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
             newState.hints = [...CurrentGame.getHints().data];
             newState.inputs[currSelected.wordIndex] = input.slice(0, res.data.index) + res.data.hint + input.slice(res.data.index + 1);
@@ -72,8 +72,10 @@ const Board = (props) => {
         }
     };
 
-    const handleMouseDown = (e) => {
-        e.preventDefault();
+    const handleClear = () => {
+        const newState = {...currState};
+        newState.inputs = [...newState.hints];
+        setCurrState(newState);
     };
 
     const handleKey = (e) => {
@@ -91,7 +93,7 @@ const Board = (props) => {
             if (charIndex < currMode.wordLen && hint[charIndex] === ' ') {
                 newInput[charIndex] = key;
                 newInputs[wordIndex] = newInput.join('');
-                setCurrState((prev) => ({...prev, inputs: newInputs}));
+                setCurrState((prev) => ({ ...prev, inputs: newInputs }));
             }
             if (charIndex < currMode.wordLen - 1) charIndex++;
         }
@@ -100,7 +102,7 @@ const Board = (props) => {
             if (hint[charIndex] === ' ') {
                 newInput[charIndex] = ' ';
                 newInputs[wordIndex] = newInput.join('');
-                setCurrState((prev) => ({...prev, inputs: newInputs}));
+                setCurrState((prev) => ({ ...prev, inputs: newInputs }));
             }
             if (key === 'BACKSPACE' && charIndex > 0) charIndex--;
         }
@@ -119,7 +121,7 @@ const Board = (props) => {
         else if (key === 'ARROWDOWN') {
             if (wordIndex < (currMode.noOfWords - 1)) wordIndex++;;
         }
-        setCurrSelected({wordIndex: wordIndex, charIndex: charIndex});
+        setCurrSelected({ wordIndex: wordIndex, charIndex: charIndex });
     };
 
     useEffect(() => {
@@ -147,12 +149,32 @@ const Board = (props) => {
             </div>
             <div className="board-control">
                 <div>{`${status.data}`}</div>
-                <KeyButtons keys={currKeys} boardRef={boardRef} currWordIndex={currSelected.wordIndex} />
-                <div className="btn board-button board-hint-button" onClick={handleGetHint} onMouseDown={handleMouseDown}>Hint</div>
-                <div className="btn board-button board-submit-button" onClick={handleValidateInput} onDoubleClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
+                <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickValidate={handleValidateInput}/>
+                <KeyButtons keys={currKeys} boardRef={boardRef}/>
+                <div className="btn board-button board-submit-button" onClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
             </div>
         </div>
     );
+};
+
+const ControlButtons = ({onClickClear, onClickHint, onClickValidate}) => {
+    return (
+        <div> 
+            <span className="fa-2x" onClick={onClickClear} onMouseDown={handleMouseDown}>
+                <i className="fa-solid fa-rotate-right board-icon-button"></i>
+            </span>
+            <span className="fa-2x" onClick={onClickHint} onMouseDown={handleMouseDown}>
+                <i class="fa-solid fa-square-h board-icon-button"></i>
+            </span>
+            <span className="fa-2x" onClick={onClickValidate} onMouseDown={handleMouseDown}>
+                <i className="fa-regular fa-circle-check board-icon-button"></i>
+            </span>
+        </div>
+    );
+};
+
+const handleMouseDown = (e) => {
+    e.preventDefault();
 };
 
 export default memo(Board);

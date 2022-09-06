@@ -36,6 +36,23 @@
     transition: all 0.2s ease;
 }
 
+.board-icon-button {
+    color: #606060FF;
+    margin: 20px 10px 0px;
+}
+
+.board-icon-button:focus,
+.board-icon-button:hover {
+    color: #2A1CAAFF;
+    transform: scale(1.15);
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
 @keyframes fadeIn {
     0% {
         opacity: 0;
