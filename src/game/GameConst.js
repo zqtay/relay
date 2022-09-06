@@ -18,17 +18,16 @@ export const MAX_STEPS = 8;
 export const MODE_DEFAULT = {
     wordLen: WORD_LENGTH_DEFAULT,
     overlapLen: OVERLAP_LENGTH_DEFAULT,
-    maxSteps: MAX_STEPS_DEFAULT
+    noOfWords: MAX_STEPS_DEFAULT
 };
 
 export const MODE_EMPTY = {
     wordLen: 0,
     overlapLen: 0,
-    maxSteps: 0
+    noOfWords: 0
 };
 
 export const STATE_EMPTY = {
-    step: 0,
     inputs: [],
     hints: []
 };

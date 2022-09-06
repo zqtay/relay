@@ -51,7 +51,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
             mode: {
                 wordLen: inputWordLengthRef.current.value,
                 overlapLen: inputOverlapLengthRef.current.value,
-                maxSteps: inputNoOfWordsRef.current.value
+                noOfWords: inputNoOfWordsRef.current.value
             }
         };
         setTimeout(() => {

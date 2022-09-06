@@ -10,8 +10,7 @@ import {
     MIN_STEPS,
     MAX_STEPS,
     MODE_DEFAULT,
-    MODE_EMPTY,
-    STATE_EMPTY,
+    MODE_EMPTY
 } from "./GameConst";
 
 const GEN_PUZZLE_TIMEOUT = 2000; // in ms
@@ -21,11 +20,11 @@ class Game {
     solution;
     keys;
     dict;
-    state;
+    hints;
 
     constructor() {
         this.mode = MODE_EMPTY;
-        this.state = STATE_EMPTY;
+        this.hints = [];
     }
 
     genPuzzle(settings = { mode: null, solution: null }) {
@@ -36,7 +35,7 @@ class Game {
             // Check game settings limit
             if (!(settings.mode.wordLen >= MIN_WORD_LENGTH && settings.mode.wordLen <= MAX_WORD_LENGTH) ||
                 !(settings.mode.overlapLen >= MIN_OVERLAP_LENGTH && settings.mode.overlapLen <= MAX_OVERLAP_LENGTH) ||
-                !(settings.mode.maxSteps >= MIN_STEPS && settings.mode.maxSteps <= MAX_STEPS)) {
+                !(settings.mode.noOfWords >= MIN_STEPS && settings.mode.noOfWords <= MAX_STEPS)) {
                 return this.result(MAGIC_FAILED, "Invalid mode");
             }
 
@@ -51,7 +50,7 @@ class Game {
             // Get dict for this puzzle settings
             this.dict = fullDict[this.mode.wordLen];
             // Create empty solution array with correct length
-            this.solution = Array(this.mode.maxSteps).fill('');
+            this.solution = Array(this.mode.noOfWords).fill('');
             let filteredDict = null;
             let deadEnd = [];
 
@@ -61,7 +60,7 @@ class Game {
 
             // Recursive loop
             let i = 0;
-            while (i < this.mode.maxSteps) {
+            while (i < this.mode.noOfWords) {
                 if (i === 0) {
                     this.solution[i] = this.getRandomItem(this.dict);
                     i++;
@@ -105,19 +104,19 @@ class Game {
             this.dict = fullDict[this.mode.wordLen];
         }
         // Available character keys to solve puzzle
-        this.keys = this.solution.join("").slice(this.mode.overlapLen, -this.mode.overlapLen);
-        this.keys = [...new Set(this.keys.split(""))].sort();
-        // Initial step
-        this.state.step = 0;
+        this.keys = this.solution.join('').slice(this.mode.overlapLen, -this.mode.overlapLen);
+        this.keys = [...new Set(this.keys.split(''))].sort();
         // Create hints array with filled spaces
-        this.state.hints = Array(this.mode.maxSteps).fill(' '.repeat(this.mode.wordLen));
+        this.hints = Array(this.mode.noOfWords).fill(' '.repeat(this.mode.wordLen));
         // Start word
-        this.state.hints[0] = this.solution[0].slice(0, this.mode.overlapLen) + ' '.repeat(this.mode.wordLen - this.mode.overlapLen);
+        this.hints[0] = this.solution[0].slice(0, this.mode.overlapLen) + ' '.repeat(this.mode.wordLen - this.mode.overlapLen);
         // End word
-        this.state.hints[this.mode.maxSteps - 1] = ' '.repeat(this.mode.wordLen - this.mode.overlapLen) + this.solution.at(-1).slice(-this.mode.overlapLen);
-        // Set inputs array same as hints array
-        this.state.inputs = [...this.state.hints];
-        return this.result(MAGIC_SUCCESS, "New puzzle");
+        this.hints[this.mode.noOfWords - 1] = ' '.repeat(this.mode.wordLen - this.mode.overlapLen) + this.solution.at(-1).slice(-this.mode.overlapLen);
+
+        return this.result(MAGIC_SUCCESS, {
+            hints: [...this.hints],
+            inputs: [...this.hints]
+        });
     }
 
     async genPuzzleAsync(settings = { mode: null, solution: null }) {
@@ -126,19 +125,17 @@ class Game {
         });
     }
 
-    async genPuzzleFromEncoded(encoded) {
-        return new Promise(resolve => {
-            let res = this.getSettingsFromEncoded(encoded);
-            if (res.status !== MAGIC_SUCCESS) {
-                resolve(res);
-            }
-            else {
-                resolve(this.genPuzzle(res.data));
-            }
-        });
+    genPuzzleFromEncoded(encoded) {
+        let res = this.getSettingsFromEncoded(encoded);
+        if (res.status !== MAGIC_SUCCESS) {
+            return res;
+        }
+        else {
+            return this.genPuzzle(res.data);
+        }
     }
 
-    validateInput(input) {
+    validateInput(index, input) {
         input = input.toLowerCase();
         // console.log(`${input} ${input.length} ${this.mode.wordLen}`);
         // Check input length
@@ -152,9 +149,9 @@ class Game {
         }
 
         // Check given hints
-        let hint = this.state.hints[this.state.step];
-        for (let index = 0; index < this.mode.wordLen; index++) {
-            if (hint[index] !== " " && input[index] !== hint[index]) {
+        let hint = this.hints[index];
+        for (let i = 0; i < this.mode.wordLen; i++) {
+            if (hint[i] !== " " && input[i] !== hint[i]) {
                 return this.result(MAGIC_FAILED, "Word not match");
             }
         }
@@ -185,41 +182,31 @@ class Game {
         return this.result(MAGIC_SUCCESS, "Valid input");
     }
 
-    validateAll() {
-        // Backup currStep
-        let currStepBackup = this.state.step;
-
+    validateAll(inputs) {
         // Sanity check
-        if (this.state.inputs.length !== this.mode.maxSteps) {
+        if (inputs.length !== this.mode.noOfWords) {
             return this.result(MAGIC_FAILED, "Wrong length");
         }
 
         // Check for blanks
-        if (this.state.inputs.some((input) => input.includes(" "))) {
+        if (inputs.some((input) => input.includes(" "))) {
             return this.result(MAGIC_FAILED, "Missing words");
         }
 
-        for (const [index, input] of this.state.inputs.entries()) {
-            this.setStep(index);
+        for (const [index, input] of inputs.entries()) {
             // Check for duplicates
-            if (this.state.inputs.filter(e => input === e).length > 1) {
-                // Restore currStep
-                this.state.step = currStepBackup;
+            if (inputs.filter(e => input === e).length > 1) {
                 return this.result(MAGIC_FAILED, `Duplicate words: ${input}`);
             }
             // Check each input
-            if (this.validateInput(input).status !== MAGIC_SUCCESS) {
-                // Restore currStep
-                this.state.step = currStepBackup;
+            if (this.validateInput(index, input).status !== MAGIC_SUCCESS) {
                 return this.result(MAGIC_FAILED, `Invalid word: ${input}`);
             }
             if (index >= 1) {
                 // Check current input's beginning is the same as 
                 // previous input's ending
-                if (!input.startsWith(this.state.inputs[index - 1].slice(-this.mode.overlapLen))) {
-                    // Restore currStep
-                    this.state.step = currStepBackup;
-                    return this.result(MAGIC_FAILED, `Word not match: ${this.state.inputs[index - 1]}, ${input}`);
+                if (!input.startsWith(inputs[index - 1].slice(-this.mode.overlapLen))) {
+                    return this.result(MAGIC_FAILED, `Word not match: ${inputs[index - 1]}, ${input}`);
                 }
             }
         }
@@ -227,13 +214,12 @@ class Game {
     }
 
     addHint(wordIndex = null, charIndex = null) {
-        if (wordIndex === null || wordIndex < 0 || wordIndex >= this.mode.maxSteps) {
+        if (wordIndex === null || wordIndex < 0 || wordIndex >= this.mode.noOfWords) {
             return this.result(MAGIC_FAILED, "Invalid word index");
         }
         let hints = [];
-        const hint = this.state.hints[wordIndex];
-        // const input = this.state.inputs[wordIndex];
         let data = null;
+        const hint = this.hints[wordIndex];
         if (charIndex === null) {
             // Get random hint
             this.solution[wordIndex].split("").forEach(
@@ -256,46 +242,17 @@ class Game {
             }
             data = {index: charIndex, hint: this.solution[wordIndex][charIndex]};
         }
-        this.state.hints[wordIndex] = hint.slice(0, data.index) + data.hint + hint.slice(data.index + 1);
-        // this.state.inputs[wordIndex] = input.slice(0, data.index) + data.hint + input.slice(data.index + 1);
+        this.hints[wordIndex] = hint.slice(0, data.index) + data.hint + hint.slice(data.index + 1);
         return this.result(MAGIC_SUCCESS, data);
     }
 
-    clearInput() {
-        this.state.inputs[this.state.step] = this.state.hints[this.state.step];
-        return this.result(MAGIC_SUCCESS, null);
-    }
-
-    setInput(input) {
-        let res = this.validateInput(input);
-        if (res.status === MAGIC_SUCCESS) {
-            this.state.inputs[this.state.step] = input;
-        }
-        return res;
-    }
-
-    setStep(step) {
-        if (step >= 0 && step < this.mode.maxSteps) {
-            this.state.step = step;
-            return this.result(MAGIC_SUCCESS, "Switched to " + step);
-        }
-        return this.result(MAGIC_FAILED, "Invalid step");
-    }
-
+    /** Public getters **/
     getMode() {
         return this.result(MAGIC_SUCCESS, this.mode);
     }
 
-    getState() {
-        return this.result(MAGIC_SUCCESS, this.state);
-    }
-
     getHints() {
-        return this.result(MAGIC_SUCCESS, this.state.hints)
-    }
-
-    getInputs() {
-        return this.result(MAGIC_SUCCESS, this.state.inputs)
+        return this.result(MAGIC_SUCCESS, this.hints)
     }
 
     getKeys() {
@@ -306,6 +263,8 @@ class Game {
         return this.result(MAGIC_SUCCESS, this.solution)
     }
 
+    /** URL query and game settings **/
+    // Generate encoded query from settings
     getEncodedFromSettings() {
         if (this.mode === null || this.solution === null) {
             return this.result(MAGIC_FAILED, "Game settings not initialized");
@@ -321,7 +280,7 @@ class Game {
                     solStr += word.slice(overlap);
                 }
             }
-            let encoded = `${this.mode.wordLen},${this.mode.overlapLen},${this.mode.maxSteps},${Buffer.from(solStr).toString("base64")}`;
+            let encoded = `${this.mode.wordLen},${this.mode.overlapLen},${this.mode.noOfWords},${Buffer.from(solStr).toString("base64")}`;
             return this.result(MAGIC_SUCCESS, encoded);
         }
         catch (e) {
@@ -329,18 +288,19 @@ class Game {
         }
     }
 
+    // Parse encoded query to settings
     getSettingsFromEncoded(encoded) {
-        let settings = { mode: { wordLen: -1, overlapLen: -1, maxSteps: -1 }, solution: [] };
+        let settings = { mode: { wordLen: -1, overlapLen: -1, noOfWords: -1 }, solution: [] };
         try {
             let textArray = encoded.split(",");
             // Mode
             settings.mode.wordLen = parseInt(textArray[0]);
             settings.mode.overlapLen = parseInt(textArray[1]);
-            settings.mode.maxSteps = parseInt(textArray[2]);
+            settings.mode.noOfWords = parseInt(textArray[2]);
             // Solution
             let solStr = Buffer.from(textArray[3], "base64").toString("ascii");
             let startIndex, endIndex = 0;
-            for (let i = 0; i < settings.mode.maxSteps; i++) {
+            for (let i = 0; i < settings.mode.noOfWords; i++) {
                 if (i === 0) {
                     settings.solution.push(solStr.slice(0, settings.mode.wordLen));
                 }
@@ -357,35 +317,15 @@ class Game {
         return this.result(MAGIC_SUCCESS, settings);
     }
 
+    /** Utils **/
+    // Return result object
     result(status, data = "") {
         return { status: status, data: data };
     }
 
+    // Get random item from an array
     getRandomItem(array) {
         return array[Math.floor(Math.random() * array.length)];
-    }
-
-    process(input) {
-        input = input.trim();
-        switch (input) {
-            case "s":
-                return this.validateAll();
-            case "a":
-                return this.getSolution();
-            case "g":
-                return this.genPuzzle();
-            case "h":
-                return this.addRandomHint();
-            case "c":
-                return this.clearInput();    
-            default:
-                if (!isNaN(parseInt(input))) {
-                    return this.setStep(parseInt(input));
-                }
-                else {
-                    return this.setInput(input);
-                }
-        }
     }
 }
 

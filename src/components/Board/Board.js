@@ -19,46 +19,38 @@ const Board = (props) => {
     const boardRef = useRef(null);
 
     useEffect(() => {
+        let res;
         let puzzleSettings = searchParams.get("puzzle");
         if (puzzleSettings !== null) {
-            CurrentGame.genPuzzleFromEncoded(puzzleSettings);
+            res = CurrentGame.genPuzzleFromEncoded(puzzleSettings);
         }
         else {
             // Random puzzle with default settings
-            CurrentGame.genPuzzle();
+            res = CurrentGame.genPuzzle();
         }
         setCurrMode(CurrentGame.getMode().data);
-        setCurrState(CurrentGame.getState().data);
+        setCurrState(res.data);
         setCurrKeys(CurrentGame.getKeys().data);
     }, [searchParams]);
 
     const handleWordInput = (wordIndex, input) => {
-        let res = CurrentGame.setStep(wordIndex);
-        if (res.status !== MAGIC_SUCCESS) {
-            setStatus(res);
-            return;
-        }
-        res = CurrentGame.setInput(input)
+        let res = CurrentGame.validateInput(wordIndex, input);
         setStatus(res);
     };
 
     const handleSubmit = () => {
-        let res = CurrentGame.setStep(currSelected.wordIndex);
-        if (res.status !== MAGIC_SUCCESS) {
-            setStatus(res);
-            return;
-        }
+        if (currSelected.wordIndex < 0 || currSelected.wordIndex >= currMode.noOfWords) return;
         const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
-        res = CurrentGame.setInput(input)
+        let res = CurrentGame.validateInput(currSelected.wordIndex, input);
         setStatus(res);
     };
 
     const handleSolve = () => {
-        setStatus(CurrentGame.validateAll());
+        let inputs = Array.from(boardRef.current.getElementsByClassName("wordbox")).map(e => e.textContent);
+        setStatus(CurrentGame.validateAll(inputs));
     };
 
     const handleGetHint = () => {
-        console.log(currSelected);
         let res = null;
         if (currSelected.charIndex === -1) {
             // Random hint
@@ -71,7 +63,7 @@ const Board = (props) => {
         if (res.status === MAGIC_SUCCESS) {
             const newState = {...currState};
             const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
-            newState.hints = [...CurrentGame.getState().data.hints];
+            newState.hints = [...CurrentGame.getHints().data];
             newState.inputs[currSelected.wordIndex] = input.slice(0, res.data.index) + res.data.hint + input.slice(res.data.index + 1);
             setCurrState(newState);
         }
@@ -87,7 +79,7 @@ const Board = (props) => {
     return (
         <div className="container board">
             <div className="board-panel" ref={boardRef}>
-                {CurrentGame.getInputs().data.map(
+                {currState.inputs.map(
                     (a, i) =>
                         <WordBox
                             key={i}

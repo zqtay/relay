@@ -109,7 +109,7 @@ const charBoxClass = (charIndex, selectedCharIndex, hintChar, wordIndex, mode) =
         className += " charbox-hint";
     }
     if ((charIndex < mode.overlapLen && wordIndex > 0) ||
-        (charIndex >= mode.wordLen - mode.overlapLen && wordIndex < mode.maxSteps - 1)) {
+        (charIndex >= mode.wordLen - mode.overlapLen && wordIndex < mode.noOfWords - 1)) {
         className += " charbox-overlap";
     }
     if (charIndex === selectedCharIndex) {
