@@ -31,16 +31,16 @@
 }
 
 .modal-title-icon {
-    color: #7060ff;
+    color: #7060FFFF;
 }
 
 .modal-status-error {
-    color: #c51010;
+    color: #C51010FF;
 }
 
 .modal-dismiss-button:focus,
 .modal-dismiss-button:hover {
-    color: #c51010;
+    color: #C51010FF;
     transform: scale(1.15);
     -webkit-transition: all 0.2s ease;
     -moz-transition: all 0.2s ease;
@@ -52,13 +52,13 @@
 
 .modal-confirm-button {
     color: white !important;
-    background-color: #2A1CAA !important;
+    background-color: #2A1CAAFF !important;
     font-weight: 500;
 }
 
 .modal-confirm-button:focus,
 .modal-confirm-button:hover {
-    background-color: #7060ff !important;
+    background-color: #7060FFFF !important;
     -webkit-transition: all 0.2s ease;
     -moz-transition: all 0.2s ease;
     -ms-transition: all 0.2s ease;

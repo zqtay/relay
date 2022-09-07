@@ -1,10 +1,12 @@
 import './App.css';
 
-import React, { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 
 import TitleBar from './components/UI/TitleBar';
-import NewPuzzleDialog from './components/Dialog/NewPuzzleDialog';
-import Board from './components/Board/Board';
+import BoardSpinner from './components/Board/BoardSpinner';
+
+const NewPuzzleDialog = lazy(() => import('./components/Dialog/NewPuzzleDialog'));
+const Board = lazy(() => import('./components/Board/Board'));
 
 function App() {
     const [showDialog, setShowDialog] = useState(false);
@@ -14,8 +16,12 @@ function App() {
             <header className='sticky-top shadow-sm'>
                 <TitleBar title="Relay" onClickHandlers={{ info: null , newGame: () => setShowDialog(true)}} />
             </header>
-            <NewPuzzleDialog show={showDialog} dismiss={() => setShowDialog(false)} />
-            <Board />
+            <Suspense>
+                <NewPuzzleDialog show={showDialog} dismiss={() => setShowDialog(false)} />
+            </Suspense>
+            <Suspense fallback={<BoardSpinner />}>
+                <Board />
+            </Suspense>
         </div>
     );
 }

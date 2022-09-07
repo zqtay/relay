@@ -62,7 +62,6 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
                         if (res.status === MAGIC_SUCCESS) {
                             dismiss();
                             navigate(`/?puzzle=${res.data}`, { replace: true });
-                            window.location.reload();
                             return;
                         }
                     }

@@ -1,13 +1,19 @@
 import { memo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import "./TitleBar.css"
 
 const TitleBar = (props) => {
+    const navigate = useNavigate();
+    const reload = () => {
+        navigate('/', { replace: true });
+        window.location.reload();
+    };
+
     return (
         <nav className="navbar navbar-expand bg-light">
             <div className="container">
-                <Link className="navbar-brand" to="/">{props.title}</Link>
+                <Link className="navbar-brand" to="/" onClick={reload}>{props.title}</Link>
                 <div className="collapse navbar-collapse">
                     <ul className="navbar-nav ms-auto align-self-center">
                         <li className="nav-item ps-3">

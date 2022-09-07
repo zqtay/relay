@@ -164,7 +164,7 @@ const ControlButtons = ({onClickClear, onClickHint, onClickValidate}) => {
                 <i className="fa-solid fa-rotate-right board-icon-button"></i>
             </span>
             <span className="fa-2x" onClick={onClickHint} onMouseDown={handleMouseDown}>
-                <i class="fa-solid fa-square-h board-icon-button"></i>
+                <i className="fa-solid fa-square-h board-icon-button"></i>
             </span>
             <span className="fa-2x" onClick={onClickValidate} onMouseDown={handleMouseDown}>
                 <i className="fa-regular fa-circle-check board-icon-button"></i>
