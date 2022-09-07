@@ -1,6 +1,6 @@
 import "./Board.css"
 
-import { useEffect, useRef, useState, memo } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, memo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import WordBox from "./WordBox";
@@ -9,12 +9,14 @@ import KeyButtons from "./KeyButtons";
 import { CurrentGame } from "../../game/Game";
 import { MAGIC_SUCCESS, MODE_EMPTY, STATE_EMPTY } from "../../game/GameConst";
 
+const ResultsDialog = lazy(() => import("../Dialog/ResultsDialog"));
 const Board = (props) => {
     const [currMode, setCurrMode] = useState(MODE_EMPTY);
     const [currState, setCurrState] = useState(STATE_EMPTY);
     const [currKeys, setCurrKeys] = useState([]);
     const [currSelected, setCurrSelected] = useState({ wordIndex: -1, charIndex: -1 });
     const [status, setStatus] = useState({ res: null, data: "" });
+    const [showResults, setShowResults] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const boardRef = useRef(null);
 
@@ -31,6 +33,7 @@ const Board = (props) => {
         setCurrMode(CurrentGame.getMode().data);
         setCurrState(res.data);
         setCurrKeys(CurrentGame.getKeys().data);
+        setShowResults(false);
     }, [searchParams]);
 
     const handleWordInput = (wordIndex, input) => {
@@ -47,7 +50,11 @@ const Board = (props) => {
 
     const handleSolve = () => {
         let inputs = Array.from(boardRef.current.getElementsByClassName("wordbox")).map(e => e.textContent);
-        setStatus(CurrentGame.validateAll(inputs));
+        let res = CurrentGame.validateAll(inputs);
+        setStatus(res);
+        if (res.status === MAGIC_SUCCESS) {
+            setShowResults(true);
+        }
     };
 
     const handleGetHint = () => {
@@ -153,6 +160,9 @@ const Board = (props) => {
                 <KeyButtons keys={currKeys} boardRef={boardRef}/>
                 <div className="btn board-button board-submit-button" onClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
             </div>
+            <Suspense>
+                <ResultsDialog show={showResults} inputs={currState.inputs} dismiss={() => setShowResults(false)}/>
+            </Suspense>
         </div>
     );
 };

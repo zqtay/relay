@@ -46,6 +46,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
         />;
 
     const btnConfirmOnClick = () => {
+        setStatus(null);
         setIsLoading(true);
         const settings = {
             mode: {
@@ -106,8 +107,8 @@ const Settings = ({ inputWordLengthRef, inputOverlapLengthRef, inputNoOfWordsRef
 const StatusError = ({ text }) => {
     return (
         <>
-            <i className="modal-status-error fa-solid fa-md fa-triangle-exclamation"></i>
-            <span className="modal-status-error me-auto">{text}</span>
+            <i className="fa-solid fa-md fa-triangle-exclamation modal-status modal-status-error "></i>
+            <span className="me-auto modal-status modal-status-error ">{text}</span>
         </>
     );
 };

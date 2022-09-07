@@ -1,0 +1,15 @@
+.results-dialog-button {
+    color: #606060FF
+}
+
+.results-dialog-button:focus,
+.results-dialog-button:hover {
+    color: #2A1CAAFF;
+    transform: scale(1.15);
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}

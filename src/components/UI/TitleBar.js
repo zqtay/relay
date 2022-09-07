@@ -1,7 +1,7 @@
+import "./TitleBar.css"
+
 import { memo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-import "./TitleBar.css"
 
 const TitleBar = (props) => {
     const navigate = useNavigate();

@@ -34,6 +34,15 @@
     color: #7060FFFF;
 }
 
+.modal-status {
+    color:#000000FF;
+    -webkit-animation: fadeIn 0.1s ease-in;
+    -moz-animation: fadeIn 0.1s ease-in;
+    -ms-animation: fadeIn 0.1s ease-in;
+    -o-animation: fadeIn 0.1s ease-in;
+    animation: fadeIn 0.1s ease-in;
+}
+
 .modal-status-error {
     color: #C51010FF;
 }
@@ -64,4 +73,14 @@
     -ms-transition: all 0.2s ease;
     -o-transition: all 0.2s ease;
     transition: all 0.2s ease;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
