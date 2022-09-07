@@ -79,7 +79,7 @@ const Board = (props) => {
     };
 
     const handleKey = (e) => {
-        // console.log(`${e.key.toLowerCase()} ${wordIndex} ${selectedCharIndex} ${charArray}`);
+        // console.log(`${e.key} ${wordIndex} ${selectedCharIndex} ${charArray}`);
         let wordIndex = currSelected.wordIndex;
         let charIndex = currSelected.charIndex;
         if (charIndex >= currMode.wordLen || charIndex < 0) return;

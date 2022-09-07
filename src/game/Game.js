@@ -136,7 +136,6 @@ class Game {
     }
 
     validateInput(index, input) {
-        input = input.toLowerCase();
         // console.log(`${input} ${input.length} ${this.mode.wordLen}`);
         // Check input length
         if (input.length !== this.mode.wordLen) {

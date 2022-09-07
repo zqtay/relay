@@ -16,7 +16,7 @@ const KeyButtons = ({ keys, boardRef }) => {
                 keys.map(
                     (a, i) =>
                         <div key={i} className="btn key-button" onClick={(e) => handleClick(a, e)} onMouseDown={handleMouseDown}>
-                            {a.toUpperCase()}
+                            {a}
                         </div>
                 )
             }

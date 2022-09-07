@@ -3,7 +3,7 @@ import "./WordBox.css"
 import { memo, useEffect, useState, useRef } from "react";
 
 const WordBox = ({ wordIndex, mode, state, selected, setSelected }) => {
-    const input = state.inputs[wordIndex].toUpperCase();
+    const input = state.inputs[wordIndex];
     const hint = state.hints[wordIndex];
     const [charArray, setCharArray] = useState(input.split(''));
     const wordBoxRef = useRef(null);
