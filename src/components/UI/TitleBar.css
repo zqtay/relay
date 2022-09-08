@@ -1,3 +1,14 @@
+.titlebar-logo {
+    height: 27px;
+    margin-right: 8px;
+    object-fit:"contain";
+    box-shadow: 0px 0px 5px #00000020;
+}
+
+.titlebar-brand-text {
+    font-weight: 500;
+}
+
 .titlebar-button {
     color: #606060FF
 }
