@@ -8,11 +8,13 @@
 }
 
 .key-button:hover {
+    /* Enlarge text, see media query below */
     -webkit-transition: all 0.1s ease-in;
     -moz-transition: all 0.1s ease-in;
     -ms-transition: all 0.1s ease-in;
     -o-transition: all 0.1s ease-in;
     transition: all 0.1s ease-in;
+    cursor: pointer;
 }
 
 @media only screen and (max-width: 600px) {

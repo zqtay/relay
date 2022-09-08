@@ -41,13 +41,6 @@ const Board = (props) => {
         setStatus(res);
     };
 
-    const handleValidateInput = () => {
-        if (currSelected.wordIndex < 0 || currSelected.wordIndex >= currMode.noOfWords) return;
-        const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
-        let res = CurrentGame.validateInput(currSelected.wordIndex, input);
-        setStatus(res);
-    };
-
     const handleSolve = () => {
         let inputs = Array.from(boardRef.current.getElementsByClassName("wordbox")).map(e => e.textContent);
         let res = CurrentGame.validateAll(inputs);
@@ -156,9 +149,8 @@ const Board = (props) => {
             </div>
             <div className="board-control">
                 <div>{`${status.data}`}</div>
-                <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickValidate={handleValidateInput}/>
+                <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickSubmit={handleSolve}/>
                 <KeyButtons keys={currKeys} boardRef={boardRef}/>
-                <div className="btn board-button board-submit-button" onClick={handleSolve} onMouseDown={handleMouseDown}>Submit</div>
             </div>
             <Suspense>
                 <ResultsDialog show={showResults} inputs={currState.inputs} dismiss={() => setShowResults(false)}/>
@@ -167,7 +159,7 @@ const Board = (props) => {
     );
 };
 
-const ControlButtons = ({onClickClear, onClickHint, onClickValidate}) => {
+const ControlButtons = ({onClickClear, onClickHint, onClickSubmit}) => {
     return (
         <div> 
             <span className="fa-2x" onClick={onClickClear} onMouseDown={handleMouseDown}>
@@ -176,7 +168,7 @@ const ControlButtons = ({onClickClear, onClickHint, onClickValidate}) => {
             <span className="fa-2x" onClick={onClickHint} onMouseDown={handleMouseDown}>
                 <i className="fa-solid fa-square-h board-icon-button"></i>
             </span>
-            <span className="fa-2x" onClick={onClickValidate} onMouseDown={handleMouseDown}>
+            <span className="fa-2x" onClick={onClickSubmit} onMouseDown={handleMouseDown}>
                 <i className="fa-regular fa-circle-check board-icon-button"></i>
             </span>
         </div>
