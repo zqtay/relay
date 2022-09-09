@@ -73,12 +73,13 @@ const Board = (props) => {
     };
 
     const handleClear = () => {
-        const newState = {...currState};
+        const newState = { ...currState };
         newState.inputs = [...newState.hints];
         setCurrState(newState);
     };
 
     const handleKey = (e) => {
+        setStatus({ res: null, data: "" });
         // console.log(`${e.key} ${wordIndex} ${selectedCharIndex} ${charArray}`);
         let wordIndex = currSelected.wordIndex;
         let charIndex = currSelected.charIndex;
@@ -124,6 +125,11 @@ const Board = (props) => {
         setCurrSelected({ wordIndex: wordIndex, charIndex: charIndex });
     };
 
+    const dispatchKey = (key, e) => {
+        const kbEvent = new KeyboardEvent('keydown_buttons', { key: key });
+        boardRef.current.dispatchEvent(kbEvent);
+    };
+
     useEffect(() => {
         const currentRef = boardRef.current;
         currentRef.addEventListener('keydown_buttons', handleKey);
@@ -148,20 +154,23 @@ const Board = (props) => {
                 )}
             </div>
             <div className="board-control">
-                <div>{`${status.data}`}</div>
-                <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickSubmit={handleSolve}/>
-                <KeyButtons keys={currKeys} boardRef={boardRef}/>
+                <div className="board-status">{`${status.data}`}</div>
+                <div>
+                    <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickSubmit={handleSolve} />
+                    <ControlButtons2 onClickValid={(e) => dispatchKey("ENTER", e)} onClickBackspace={(e) => dispatchKey("BACKSPACE", e)} />
+                </div>
+                <KeyButtons keys={currKeys} boardRef={boardRef} />
             </div>
             <Suspense>
-                <ResultsDialog show={showResults} inputs={currState.inputs} dismiss={() => setShowResults(false)}/>
+                <ResultsDialog show={showResults} inputs={currState.inputs} dismiss={() => setShowResults(false)} />
             </Suspense>
         </div>
     );
 };
 
-const ControlButtons = ({onClickClear, onClickHint, onClickSubmit}) => {
+const ControlButtons = ({ onClickClear, onClickHint, onClickSubmit }) => {
     return (
-        <div> 
+        <>
             <span className="fa-2x" onClick={onClickClear} onMouseDown={handleMouseDown}>
                 <i className="fa-solid fa-rotate-right board-icon-button"></i>
             </span>
@@ -171,7 +180,20 @@ const ControlButtons = ({onClickClear, onClickHint, onClickSubmit}) => {
             <span className="fa-2x" onClick={onClickSubmit} onMouseDown={handleMouseDown}>
                 <i className="fa-regular fa-circle-check board-icon-button"></i>
             </span>
-        </div>
+        </>
+    );
+};
+
+const ControlButtons2 = ({ onClickValid, onClickBackspace }) => {
+    return (
+        <>
+            <span className="fa-2x" onClick={onClickValid} onMouseDown={handleMouseDown}>
+                <i className="fa-solid fa-spell-check board-icon-button"></i>
+            </span>
+            <span className="fa-2x" onClick={onClickBackspace} onMouseDown={handleMouseDown}>
+                <i className="fa-solid fa-left-long board-icon-button"></i>
+            </span>
+        </>
     );
 };
 

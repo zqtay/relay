@@ -35,7 +35,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
         setIsLoading(false);
         inputWordLengthRef.current.defaultValue = CurrentGame.getMode().data.wordLen;
         inputOverlapLengthRef.current.defaultValue = CurrentGame.getMode().data.overlapLen;
-        inputNoOfWordsRef.current.defaultValue = CurrentGame.getMode().data.maxSteps;
+        inputNoOfWordsRef.current.defaultValue = CurrentGame.getMode().data.noOfWords;
     }, [show]);
 
     const content =

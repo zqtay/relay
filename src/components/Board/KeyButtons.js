@@ -11,26 +11,15 @@ const KeyButtons = ({ keys, boardRef }) => {
     };
 
     return (
-        <div className='d-flex justify-content-center align-items-center'>
-            <div>
-                {
-                    keys.map(
-                        (a, i) =>
-                            <div key={i} className="btn key-button" onClick={(e) => handleClick(a, e)} onMouseDown={handleMouseDown}>
-                                {a}
-                            </div>
-                    )
-                }
-            </div>
-            <div className="vr mx-3 my-3"></div>
-            <div>
-                <div className="key-button" onClick={(e) => handleClick("BACKSPACE", e)} onMouseDown={handleMouseDown}>
-                    <i className="fa-solid fa-left-long"></i>
-                </div>
-                <div className="key-button" onClick={(e) => handleClick("ENTER", e)} onMouseDown={handleMouseDown}>
-                    <i className="fa-solid fa-spell-check"></i>
-                </div>
-            </div>
+        <div className="d-flex flex-wrap align-items-center justify-content-center">
+            {
+                keys.map(
+                    (a, i) =>
+                        <div key={i} className="key-button" onClick={(e) => handleClick(a, e)} onMouseDown={handleMouseDown}>
+                            {a}
+                        </div>
+                )
+            }
         </div>
     );
 }

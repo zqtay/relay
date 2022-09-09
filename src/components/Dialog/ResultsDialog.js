@@ -31,7 +31,7 @@ const checkAltSolution = (inputs, solution) => {
 };
 
 const ResultsContent = ({ inputs, solution, setStatus }) => {
-    const puzzleUrl = window.location.origin.toString() + "/#/?puzzle=" + CurrentGame.getEncodedFromSettings().data;
+    const puzzleUrl = window.location.origin.toString() + "/relay/#/?puzzle=" + CurrentGame.getEncodedFromSettings().data;
     const isAltSolution = checkAltSolution(inputs, solution);
     const onClickShare = () => {
         const status = (
@@ -46,7 +46,7 @@ const ResultsContent = ({ inputs, solution, setStatus }) => {
 
     return (
         <>
-            <div className="fs-3">
+            <div className="fs-4">
                 You have solved this puzzle{isAltSolution && ` and found an alternate solution`}!
             </div>
             <hr></hr>

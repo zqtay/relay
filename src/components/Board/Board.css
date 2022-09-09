@@ -16,7 +16,13 @@
 }
 
 .board-control {
-    margin: 0px 10%;
+    margin: 0px 5%;
+}
+
+.board-status {
+    margin: 10px;
+    font-size: 1.3em;
+    height: 1.3em;
 }
 
 .board-button {
