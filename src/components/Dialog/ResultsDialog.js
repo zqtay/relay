@@ -12,13 +12,12 @@ const ResultsDialog = ({ show, inputs, dismiss }) => {
         setStatus(null);
     }, [show]);
 
-    // Only render ResultsContent if show is true
     return (
         <Dialog
             show={show}
             icon="fa-trophy"
             title="Success"
-            content={show && <ResultsContent inputs={inputs} solution={CurrentGame.getSolution().data} setStatus={setStatus} />}
+            content={<ResultsContent show={show} inputs={inputs} setStatus={setStatus} />}
             btnConfirm={<ButtonConfirm onClick={dismiss} />}
             status={status}
             dismiss={dismiss}
@@ -27,11 +26,18 @@ const ResultsDialog = ({ show, inputs, dismiss }) => {
 };
 
 const checkAltSolution = (inputs, solution) => {
+    if (inputs === null || solution === null || solution.length === 0) return false;
     return !inputs.every((v, i) => v === solution[i]);
 };
 
-const ResultsContent = ({ inputs, solution, setStatus }) => {
-    const puzzleUrl = window.location.origin.toString() + "/relay/#/?puzzle=" + CurrentGame.getEncodedFromSettings().data;
+const ResultsContent = ({ show, inputs, setStatus }) => {
+    let puzzleUrl = "";
+    let solution = [];
+    if (show) {
+        puzzleUrl = window.location.origin.toString() + "/relay/#/?puzzle=" + CurrentGame.getEncodedFromSettings().data;
+        solution = CurrentGame.getSolution().data;
+    }
+
     const isAltSolution = checkAltSolution(inputs, solution);
     const onClickShare = () => {
         const status = (
@@ -47,13 +53,16 @@ const ResultsContent = ({ inputs, solution, setStatus }) => {
     return (
         <>
             <div className="fs-4">
-                You have solved this puzzle{isAltSolution && ` and found an alternate solution`}!
+                You have solved this puzzle{!isAltSolution && '!'}
+            </div>
+            <div className="">
+                {isAltSolution && '... and found an alternate solution!'}
             </div>
             <hr></hr>
             {isAltSolution && (
                 <>
                     <div className="text-start fw-semibold">Original solution: </div>
-                    <div><b>{`${solution.join(', ')}`}</b></div>
+                    <div><b>{solution.join(', ')}</b></div>
                     <hr></hr>
                 </>
             )}

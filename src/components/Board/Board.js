@@ -11,10 +11,10 @@ import { MAGIC_SUCCESS, MODE_EMPTY, STATE_EMPTY } from "../../game/GameConst";
 
 const ResultsDialog = lazy(() => import("../Dialog/ResultsDialog"));
 const Board = (props) => {
-    const [currMode, setCurrMode] = useState(MODE_EMPTY);
-    const [currState, setCurrState] = useState(STATE_EMPTY);
-    const [currKeys, setCurrKeys] = useState([]);
-    const [currSelected, setCurrSelected] = useState({ wordIndex: -1, charIndex: -1 });
+    const [mode, setMode] = useState(MODE_EMPTY);
+    const [state, setState] = useState(STATE_EMPTY);
+    const [keys, setKeys] = useState([]);
+    const [selected, setSelected] = useState({ wordIndex: -1, charIndex: -1 });
     const [status, setStatus] = useState({ res: null, data: "" });
     const [showResults, setShowResults] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -30,9 +30,9 @@ const Board = (props) => {
             // Random puzzle with default settings
             res = CurrentGame.genPuzzle();
         }
-        setCurrMode(CurrentGame.getMode().data);
-        setCurrState(res.data);
-        setCurrKeys(CurrentGame.getKeys().data);
+        setMode(CurrentGame.getMode().data);
+        setState(res.data);
+        setKeys(CurrentGame.getKeys().data);
         setShowResults(false);
     }, [searchParams]);
 
@@ -52,20 +52,20 @@ const Board = (props) => {
 
     const handleGetHint = () => {
         let res = null;
-        if (currSelected.charIndex === -1) {
+        if (selected.charIndex === -1) {
             // Random hint
-            res = CurrentGame.addHint(currSelected.wordIndex);
+            res = CurrentGame.addHint(selected.wordIndex);
         }
         else {
-            res = CurrentGame.addHint(currSelected.wordIndex, currSelected.charIndex);
+            res = CurrentGame.addHint(selected.wordIndex, selected.charIndex);
         }
 
         if (res.status === MAGIC_SUCCESS) {
-            const newState = { ...currState };
-            const input = boardRef.current.getElementsByClassName("wordbox")[currSelected.wordIndex].textContent;
+            const newState = { ...state };
+            const input = boardRef.current.getElementsByClassName("wordbox")[selected.wordIndex].textContent;
             newState.hints = [...CurrentGame.getHints().data];
-            newState.inputs[currSelected.wordIndex] = input.slice(0, res.data.index) + res.data.hint + input.slice(res.data.index + 1);
-            setCurrState(newState);
+            newState.inputs[selected.wordIndex] = input.slice(0, res.data.index) + res.data.hint + input.slice(res.data.index + 1);
+            setState(newState);
         }
         else {
             setStatus(res);
@@ -73,37 +73,37 @@ const Board = (props) => {
     };
 
     const handleClear = () => {
-        const newState = { ...currState };
+        const newState = { ...state };
         newState.inputs = [...newState.hints];
-        setCurrState(newState);
+        setState(newState);
     };
 
     const handleKey = (e) => {
         setStatus({ res: null, data: "" });
         // console.log(`${e.key} ${wordIndex} ${selectedCharIndex} ${charArray}`);
-        let wordIndex = currSelected.wordIndex;
-        let charIndex = currSelected.charIndex;
-        if (charIndex >= currMode.wordLen || charIndex < 0) return;
+        let wordIndex = selected.wordIndex;
+        let charIndex = selected.charIndex;
+        if (charIndex >= mode.wordLen || charIndex < 0) return;
 
         const key = e.key.toUpperCase();
-        const newInputs = [...currState.inputs];
+        const newInputs = [...state.inputs];
         const newInput = newInputs[wordIndex].split('');
-        const hint = currState.hints[wordIndex];
+        const hint = state.hints[wordIndex];
         if (key.length === 1) {
             // Only set char if index is within range and hint not exist
-            if (charIndex < currMode.wordLen && hint[charIndex] === ' ') {
+            if (charIndex < mode.wordLen && hint[charIndex] === ' ') {
                 newInput[charIndex] = key;
                 newInputs[wordIndex] = newInput.join('');
-                setCurrState((prev) => ({ ...prev, inputs: newInputs }));
+                setState((prev) => ({ ...prev, inputs: newInputs }));
             }
-            if (charIndex < currMode.wordLen - 1) charIndex++;
+            if (charIndex < mode.wordLen - 1) charIndex++;
         }
         else if (key === 'DELETE' || key === 'BACKSPACE') {
             // Skip deleting hints
             if (hint[charIndex] === ' ') {
                 newInput[charIndex] = ' ';
                 newInputs[wordIndex] = newInput.join('');
-                setCurrState((prev) => ({ ...prev, inputs: newInputs }));
+                setState((prev) => ({ ...prev, inputs: newInputs }));
             }
             if (key === 'BACKSPACE' && charIndex > 0) charIndex--;
         }
@@ -114,15 +114,15 @@ const Board = (props) => {
             if (charIndex > 0) charIndex--;
         }
         else if (key === 'ARROWRIGHT') {
-            if (charIndex < (currMode.wordLen - 1)) charIndex++;
+            if (charIndex < (mode.wordLen - 1)) charIndex++;
         }
         else if (key === 'ARROWUP') {
             if (wordIndex > 0) wordIndex--;
         }
         else if (key === 'ARROWDOWN') {
-            if (wordIndex < (currMode.noOfWords - 1)) wordIndex++;;
+            if (wordIndex < (mode.noOfWords - 1)) wordIndex++;
         }
-        setCurrSelected({ wordIndex: wordIndex, charIndex: charIndex });
+        setSelected({ wordIndex: wordIndex, charIndex: charIndex });
     };
 
     const dispatchKey = (key, e) => {
@@ -141,15 +141,15 @@ const Board = (props) => {
     return (
         <div className="container board">
             <div tabIndex={0} className="board-panel" ref={boardRef} onKeyDown={handleKey}>
-                {currState.inputs.map(
+                {state.inputs.map(
                     (a, i) =>
                         <WordBox
                             key={i}
                             wordIndex={i}
-                            mode={currMode}
-                            state={currState}
-                            selected={currSelected}
-                            setSelected={setCurrSelected}
+                            mode={mode}
+                            state={state}
+                            selected={selected}
+                            setSelected={setSelected}
                         />
                 )}
             </div>
@@ -159,10 +159,10 @@ const Board = (props) => {
                     <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickSubmit={handleSolve} />
                     <ControlButtons2 onClickValid={(e) => dispatchKey("ENTER", e)} onClickBackspace={(e) => dispatchKey("BACKSPACE", e)} />
                 </div>
-                <KeyButtons keys={currKeys} boardRef={boardRef} />
+                <KeyButtons keys={keys} boardRef={boardRef} />
             </div>
             <Suspense>
-                <ResultsDialog show={showResults} inputs={currState.inputs} dismiss={() => setShowResults(false)} />
+                <ResultsDialog show={showResults} inputs={state.inputs} dismiss={() => setShowResults(false)} />
             </Suspense>
         </div>
     );
