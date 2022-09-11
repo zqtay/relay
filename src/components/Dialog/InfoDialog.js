@@ -29,7 +29,7 @@ const InfoContent = () => {
                     Fill in the blanks with the <b>given alphabets</b>.
                 </li>
                 <li>
-                    The <b>end</b> of the current word must <b>match</b> with the <b>start</b> of the next word.
+                    The <b>end</b> of your current word must <b>match</b> the <b>start</b> of your next word.
                 </li>
                 <li>
                     Use <b>hints</b> if you are stuck!
@@ -40,7 +40,7 @@ const InfoContent = () => {
                 <div className="col">
                     <ButtonGuide icon="fa-solid fa-rotate-right" text={<><b>Clear</b> board</>}/>
                     <ButtonGuide icon="fa-solid fa-square-h" text={<><b>Reveal</b> hint</>}/>
-                    <ButtonGuide icon="fa-solid fa-circle-check" text={<><b>Submit</b> solution</>}/>
+                    <ButtonGuide icon="fa-regular fa-circle-check" text={<><b>Submit</b> solution</>}/>
                 </div>
                 <div className="col">
                     <ButtonGuide icon="fa-solid fa-spell-check" text={<><b>Check</b> current word</>}/>
