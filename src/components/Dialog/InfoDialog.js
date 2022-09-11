@@ -36,13 +36,15 @@ const InfoContent = () => {
                 </li>
             </ul>
             <hr></hr>
-            <div className="row info-dialog-text">
-                <div className="col">
-                    <ButtonGuide icon="fa-solid fa-square-h" text={<><b>Reveal</b> hint</>}/>
-                    <ButtonGuide icon="fa-regular fa-circle-check" text={<><b>Check</b> word / (Hold) <b>Submit</b> solution</>}/>
-                    <ButtonGuide icon="fa-solid fa-left-long" text={<><b>Backspace</b> / (Hold) <b>Clear</b> board</>}/>
-                </div>
+            <div className="info-dialog-text">
+                <ButtonGuide icon="fa-solid fa-square-h" text={<><b>Reveal</b> hint</>} margin="mb-2"/>
+                <ButtonGuide icon="fa-regular fa-circle-check" text={<><b>Check</b> word / (Hold) <b>Submit</b> solution</>} margin="mb-2"/>
+                <ButtonGuide icon="fa-solid fa-left-long" text={<><b>Backspace</b> / (Hold) <b>Clear</b> board</>} />
             </div>
+            <hr></hr>
+            <small>
+                Developed by <a href="https://zqtay.github.io/">Tay Zong Qing</a>
+            </small>
         </div>
     );
 };
@@ -55,9 +57,9 @@ const ButtonConfirm = ({ onClick }) => {
     );
 };
 
-const ButtonGuide = ({icon, text}) => {
+const ButtonGuide = ({ icon, text, margin="" }) => {
     return (
-        <div className="d-flex align-items-center mb-2">
+        <div className={`d-flex align-items-center ${margin}`}>
             <i className={`fa-2x ${icon} me-2 info-dialog-button-guide-icon`}></i>
             <span>{text}</span>
         </div>
