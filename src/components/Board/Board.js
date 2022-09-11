@@ -5,17 +5,21 @@ import { useSearchParams } from 'react-router-dom';
 
 import WordBox from "./WordBox";
 import KeyButtons from "./KeyButtons";
+import useLongPress from "../Hooks/UseLongPress";
 
 import { CurrentGame } from "../../game/Game";
 import { MAGIC_SUCCESS, MODE_EMPTY, STATE_EMPTY } from "../../game/GameConst";
 
 const ResultsDialog = lazy(() => import("../Dialog/ResultsDialog"));
+
+const STATUS_EMPTY = { res: null, data: "" };
+
 const Board = (props) => {
     const [mode, setMode] = useState(MODE_EMPTY);
     const [state, setState] = useState(STATE_EMPTY);
     const [keys, setKeys] = useState([]);
     const [selected, setSelected] = useState({ wordIndex: -1, charIndex: -1 });
-    const [status, setStatus] = useState({ res: null, data: "" });
+    const [status, setStatus] = useState(STATUS_EMPTY);
     const [showResults, setShowResults] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const boardRef = useRef(null);
@@ -34,14 +38,17 @@ const Board = (props) => {
         setState(res.data);
         setKeys(CurrentGame.getKeys().data);
         setShowResults(false);
+        setStatus(STATUS_EMPTY);
     }, [searchParams]);
 
-    const handleWordInput = (wordIndex, input) => {
+    const handleCheckWord = (wordIndex, input) => {
+        setStatus(STATUS_EMPTY);
         let res = CurrentGame.validateInput(wordIndex, input);
         setStatus(res);
     };
 
     const handleSolve = () => {
+        setStatus(STATUS_EMPTY);
         let inputs = Array.from(boardRef.current.getElementsByClassName("wordbox")).map(e => e.textContent);
         let res = CurrentGame.validateAll(inputs);
         setStatus(res);
@@ -51,6 +58,7 @@ const Board = (props) => {
     };
 
     const handleGetHint = () => {
+        setStatus(STATUS_EMPTY);
         let res = null;
         if (selected.charIndex === -1) {
             // Random hint
@@ -73,13 +81,14 @@ const Board = (props) => {
     };
 
     const handleClear = () => {
+        setStatus(STATUS_EMPTY);
         const newState = { ...state };
         newState.inputs = [...newState.hints];
         setState(newState);
     };
 
     const handleKey = (e) => {
-        setStatus({ res: null, data: "" });
+        setStatus(STATUS_EMPTY);
         // console.log(`${e.key} ${wordIndex} ${selectedCharIndex} ${charArray}`);
         let wordIndex = selected.wordIndex;
         let charIndex = selected.charIndex;
@@ -108,7 +117,7 @@ const Board = (props) => {
             if (key === 'BACKSPACE' && charIndex > 0) charIndex--;
         }
         else if (key === 'ENTER') {
-            handleWordInput(wordIndex, newInput.join(''));
+            handleCheckWord(wordIndex, newInput.join(''));
         }
         else if (key === 'ARROWLEFT') {
             if (charIndex > 0) charIndex--;
@@ -125,7 +134,7 @@ const Board = (props) => {
         setSelected({ wordIndex: wordIndex, charIndex: charIndex });
     };
 
-    const dispatchKey = (key, e) => {
+    const dispatchKey = (key) => {
         const kbEvent = new KeyboardEvent('keydown_buttons', { key: key });
         boardRef.current.dispatchEvent(kbEvent);
     };
@@ -155,10 +164,13 @@ const Board = (props) => {
             </div>
             <div className="board-control">
                 <div className="board-status">{`${status.data}`}</div>
-                <div>
-                    <ControlButtons onClickClear={handleClear} onClickHint={handleGetHint} onClickSubmit={handleSolve} />
-                    <ControlButtons2 onClickValid={(e) => dispatchKey("ENTER", e)} onClickBackspace={(e) => dispatchKey("BACKSPACE", e)} />
-                </div>
+                <ControlButtons
+                    onClickClear={handleClear}
+                    onClickHint={handleGetHint}
+                    onClickSubmit={handleSolve}
+                    onClickValid={() => dispatchKey("ENTER")}
+                    onClickBackspace={() => dispatchKey("BACKSPACE")}
+                />
                 <KeyButtons keys={keys} boardRef={boardRef} />
             </div>
             <Suspense>
@@ -168,37 +180,17 @@ const Board = (props) => {
     );
 };
 
-const ControlButtons = ({ onClickClear, onClickHint, onClickSubmit }) => {
+const ControlButtons = ({ onClickClear, onClickHint, onClickSubmit, onClickValid, onClickBackspace }) => {
+    const handleClear = useLongPress(onClickClear, onClickBackspace);
+    const handleSubmit = useLongPress(onClickSubmit, onClickValid);
+    
     return (
-        <>
-            <span className="fa-2x" onClick={onClickClear} onMouseDown={handleMouseDown}>
-                <i className="fa-solid fa-rotate-right board-icon-button"></i>
-            </span>
-            <span className="fa-2x" onClick={onClickHint} onMouseDown={handleMouseDown}>
-                <i className="fa-solid fa-square-h board-icon-button"></i>
-            </span>
-            <span className="fa-2x" onClick={onClickSubmit} onMouseDown={handleMouseDown}>
-                <i className="fa-regular fa-circle-check board-icon-button"></i>
-            </span>
-        </>
+        <div>
+            <i className="fa-solid fa-2x fa-square-h board-icon-button" onClick={onClickHint} onMouseDown={e => e.preventDefault()}></i>
+            <i className="fa-regular fa-2x fa-circle-check board-icon-button" {...handleSubmit}></i>
+            <i className="fa-solid fa-2x fa-left-long board-icon-button" {...handleClear}></i>
+        </div>
     );
-};
-
-const ControlButtons2 = ({ onClickValid, onClickBackspace }) => {
-    return (
-        <>
-            <span className="fa-2x" onClick={onClickValid} onMouseDown={handleMouseDown}>
-                <i className="fa-solid fa-spell-check board-icon-button"></i>
-            </span>
-            <span className="fa-2x" onClick={onClickBackspace} onMouseDown={handleMouseDown}>
-                <i className="fa-solid fa-left-long board-icon-button"></i>
-            </span>
-        </>
-    );
-};
-
-const handleMouseDown = (e) => {
-    e.preventDefault();
 };
 
 export default memo(Board);

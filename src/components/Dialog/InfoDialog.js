@@ -38,13 +38,9 @@ const InfoContent = () => {
             <hr></hr>
             <div className="row info-dialog-text">
                 <div className="col">
-                    <ButtonGuide icon="fa-solid fa-rotate-right" text={<><b>Clear</b> board</>}/>
                     <ButtonGuide icon="fa-solid fa-square-h" text={<><b>Reveal</b> hint</>}/>
-                    <ButtonGuide icon="fa-regular fa-circle-check" text={<><b>Submit</b> solution</>}/>
-                </div>
-                <div className="col">
-                    <ButtonGuide icon="fa-solid fa-spell-check" text={<><b>Check</b> current word</>}/>
-                    <ButtonGuide icon="fa-solid fa-left-long" text={<><b>Backspace</b></>}/>
+                    <ButtonGuide icon="fa-regular fa-circle-check" text={<><b>Check</b> word / (Hold) <b>Submit</b> solution</>}/>
+                    <ButtonGuide icon="fa-solid fa-left-long" text={<><b>Backspace</b> / (Hold) <b>Clear</b> board</>}/>
                 </div>
             </div>
         </div>
