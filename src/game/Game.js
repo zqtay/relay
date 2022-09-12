@@ -144,7 +144,7 @@ class Game {
 
         // Check blanks
         if (input.includes(" ")) {
-            return this.result(MAGIC_FAILED, "Missing chars");
+            return this.result(MAGIC_FAILED, "Missing letters");
         }
 
         // Check given hints
@@ -170,15 +170,15 @@ class Game {
             }
         });
         if (invalidChar !== "") {
-            return this.result(MAGIC_FAILED, "Invalid characters: " + invalidChar);
+            return this.result(MAGIC_FAILED, "Invalid letters: " + invalidChar);
         }
 
         // Check the word in dictionary
         if (!this.dict.includes(input)) {
-            return this.result(MAGIC_FAILED, "Not in dict");
+            return this.result(MAGIC_FAILED, "Not in word list");
         }
 
-        return this.result(MAGIC_SUCCESS, "Valid input");
+        return this.result(MAGIC_SUCCESS, "Valid word");
     }
 
     validateAll(inputs) {
@@ -205,7 +205,7 @@ class Game {
                 // Check current input's beginning is the same as 
                 // previous input's ending
                 if (!input.startsWith(inputs[index - 1].slice(-this.mode.overlapLen))) {
-                    return this.result(MAGIC_FAILED, `Word not match: ${inputs[index - 1]}, ${input}`);
+                    return this.result(MAGIC_FAILED, `Words not match: ${inputs[index - 1]}, ${input}`);
                 }
             }
         }
@@ -214,7 +214,7 @@ class Game {
 
     addHint(wordIndex = null, charIndex = null) {
         if (wordIndex === null || wordIndex < 0 || wordIndex >= this.mode.noOfWords) {
-            return this.result(MAGIC_FAILED, "Invalid word index");
+            return this.result(MAGIC_FAILED, "Invalid selection");
         }
         let hints = [];
         let data = null;
@@ -237,7 +237,7 @@ class Game {
         }
         else {
             if (charIndex < 0 || charIndex >= this.mode.wordLen) {
-                this.result(MAGIC_FAILED, "Invalid char index");
+                this.result(MAGIC_FAILED, "Invalid selection");
             }
             data = {index: charIndex, hint: this.solution[wordIndex][charIndex]};
         }
