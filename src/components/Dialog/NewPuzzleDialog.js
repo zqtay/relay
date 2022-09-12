@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import Dialog from "../UI/Dialog";
+import LoadingButton from "../UI/LoadingButton";
 import Slider from "../UI/Slider";
 
 import { Game, CurrentGame } from "../../game/Game";
@@ -13,25 +14,23 @@ import {
     MIN_STEPS,
     MAX_STEPS,
     MAGIC_SUCCESS
-} from "../../game/GameConst"
+} from "../../game/GameConst";
 
 const ID_INPUT_WORD_LENGTH = "input_wordLength";
 const ID_INPUT_OVERLAP_LENGTH = "input_overlapLength";
 const ID_INPUT_NO_OF_WORDS = "input_noOfWords";
 const BUTTON_CONFIRM_DELAY = 500; // ms
 
-const game = new Game();
-
 const NewPuzzleDialog = ({ show, dismiss }) => {
     const inputWordLengthRef = useRef(null);
     const inputOverlapLengthRef = useRef(null);
     const inputNoOfWordsRef = useRef(null);
-    const [status, setStatus] = useState(null);
+    const [status, setStatus] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        setStatus(null);
+        setStatus("");
         setIsLoading(false);
         inputWordLengthRef.current.defaultValue = CurrentGame.getMode().data.wordLen;
         inputOverlapLengthRef.current.defaultValue = CurrentGame.getMode().data.overlapLen;
@@ -46,7 +45,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
         />;
 
     const btnConfirmOnClick = () => {
-        setStatus(null);
+        setStatus("");
         setIsLoading(true);
         const settings = {
             mode: {
@@ -56,6 +55,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
             }
         };
         setTimeout(() => {
+            const game = new Game();
             game.genPuzzleAsync(settings).then(
                 (res) => {
                     if (res.status === MAGIC_SUCCESS) {
@@ -71,12 +71,12 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
                 }
             );
         }, BUTTON_CONFIRM_DELAY);
-    }
+    };
 
     const btnCancelOnClick = () => {
-        setStatus(null);
+        setStatus("");
         dismiss();
-    }
+    };
 
     return (
         <Dialog
@@ -86,7 +86,7 @@ const NewPuzzleDialog = ({ show, dismiss }) => {
             content={content}
             status={status}
             btnCancel={<ButtonCancel onClick={btnCancelOnClick} />}
-            btnConfirm={<ButtonConfirm onClick={btnConfirmOnClick} isLoading={isLoading} />}
+            btnConfirm={<LoadingButton className="modal-confirm-button" onClick={btnConfirmOnClick} isLoading={isLoading} text="Start" />}
             dismiss={dismiss}
         />
     );
@@ -116,16 +116,6 @@ const StatusError = ({ text }) => {
 const ButtonCancel = ({ onClick }) => {
     return (
         <button type="button" className="btn btn-default" onClick={onClick}>Cancel</button>
-    );
-};
-
-const ButtonConfirm = ({ onClick, isLoading }) => {
-    return (
-        <button type="button" className="btn btn-primary modal-confirm-button" onClick={onClick} disabled={isLoading}>
-            {isLoading && <span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>}
-            {isLoading && " Loading... "}
-            {!isLoading && "Start"}
-        </button>
     );
 };
 

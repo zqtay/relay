@@ -1,16 +1,47 @@
 import "./ResultsDialog.css";
 
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 import Dialog from "../UI/Dialog";
-import { CurrentGame } from "../../game/Game";
+import LoadingButton from "../UI/LoadingButton";
+
+import { Game, CurrentGame } from "../../game/Game";
+import { MAGIC_SUCCESS } from "../../game/GameConst";
+
+const BUTTON_CONFIRM_DELAY = 500; // ms
 
 const ResultsDialog = ({ show, inputs, dismiss }) => {
-    const [status, setStatus] = useState(null);
+    const [status, setStatus] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        setStatus(null);
+        setStatus("");
+        setIsLoading(false);
     }, [show]);
+
+    const handleNewPuzzle = () => {
+        setStatus("");
+        setIsLoading(true);
+        setTimeout(() => {
+            const settings = {mode: CurrentGame.getMode().data};
+            const game = new Game();
+            game.genPuzzleAsync(settings).then(
+                (res) => {
+                    if (res.status === MAGIC_SUCCESS) {
+                        res = game.getEncodedFromSettings();
+                        if (res.status === MAGIC_SUCCESS) {
+                            dismiss();
+                            navigate(`/?puzzle=${res.data}`, { replace: true });
+                            return;
+                        }
+                    }
+                    setIsLoading(false);
+                }
+            );
+        }, BUTTON_CONFIRM_DELAY);
+    };
 
     return (
         <Dialog
@@ -18,7 +49,7 @@ const ResultsDialog = ({ show, inputs, dismiss }) => {
             icon="fa-trophy"
             title="Success"
             content={<ResultsContent show={show} inputs={inputs} setStatus={setStatus} />}
-            btnConfirm={<ButtonConfirm onClick={dismiss} />}
+            btnConfirm={<LoadingButton className="modal-confirm-button" onClick={handleNewPuzzle} isLoading={isLoading} text="New puzzle" />}
             status={status}
             dismiss={dismiss}
         />
@@ -78,14 +109,6 @@ const ResultsContent = ({ show, inputs, setStatus }) => {
                 </div>
             </div>
         </>
-    );
-};
-
-const ButtonConfirm = ({ onClick }) => {
-    return (
-        <button type="button" className="btn btn-primary modal-confirm-button" onClick={onClick}>
-            OK
-        </button>
     );
 };
 
