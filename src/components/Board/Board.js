@@ -89,15 +89,30 @@ const Board = (props) => {
 
     const handleKey = (e) => {
         setStatus(STATUS_EMPTY);
-        // console.log(`${e.key} ${wordIndex} ${selectedCharIndex} ${charArray}`);
+        // console.log(`${e.key} ${selected.wordIndex} ${selected.charIndex}`);
         let wordIndex = selected.wordIndex;
         let charIndex = selected.charIndex;
-        if (charIndex >= mode.wordLen || charIndex < 0) return;
 
         const key = e.key.toUpperCase();
         const newInputs = [...state.inputs];
         const newInput = newInputs[wordIndex].split('');
         const hint = state.hints[wordIndex];
+
+        // Check out of range
+        if (charIndex >= mode.wordLen || charIndex < 0) {
+            // Special cases
+            if (key.length === 1 && charIndex === -1) {
+                // Auto set to 0 if char not selected
+                charIndex = 0;
+            }
+            else if (key === 'ENTER') {
+                // Ignore char index for word check
+            }
+            else {
+                return;
+            }
+        }
+
         if (key.length === 1) {
             // Only set char if index is within range and hint not exist
             if (charIndex < mode.wordLen && hint[charIndex] === ' ') {
