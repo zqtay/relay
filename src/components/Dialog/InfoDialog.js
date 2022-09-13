@@ -26,10 +26,10 @@ const InfoContent = () => {
             </div>
             <ul className="info-dialog-text">
                 <li>
-                    Fill in the blanks with the <b>given alphabets</b>.
+                    Form words with the <b>given letters</b>.
                 </li>
                 <li>
-                    The <b>end</b> of your current word must <b>match</b> the <b>start</b> of your next word.
+                    <b>Match</b> the <b>start</b> of your word to the <b>end</b> of your previous word.
                 </li>
                 <li>
                     Use <b>hints</b> if you are stuck!

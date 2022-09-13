@@ -1,7 +1,7 @@
 .key-button {
     background-color: #FFFFFF00 !important;
     border: 0px solid #FFFFFF00 !important;
-    margin: 5px 2px;
+    margin: 5px 5px;
     text-align: center;
     font-weight: 500;
     padding: 0;
@@ -19,10 +19,10 @@
 
 @media only screen and (max-width: 600px) {
     .key-button {
-        height: 50px;
-        width: 45px;
+        height: 35px;
+        width: 35px;
         font-size: 26px;
-        line-height: 50px;
+        line-height: 35px;
     }
 
     .key-button:hover {
@@ -32,10 +32,10 @@
 
 @media only screen and (min-width: 600px) {
     .key-button {
-        height: 60px;
-        width: 55px;
+        height: 40px;
+        width: 40px;
         font-size: 28px;
-        line-height: 60px;
+        line-height: 40px;
     }
 
     .key-button:hover {
@@ -45,10 +45,10 @@
 
 @media only screen and (min-width: 768px) {
     .key-button {
-        height: 75px;
-        width: 65px;
+        height: 50px;
+        width: 50px;
         font-size: 35px;
-        line-height: 75px;
+        line-height: 50px;
     }
 
     .key-button:hover {

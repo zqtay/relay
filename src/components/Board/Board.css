@@ -25,26 +25,10 @@
     height: 1.3em;
 }
 
-.board-button {
-    color: white !important;
-    background-color: #2A1CAAFF !important;
-    margin: 0px 2px 0px;
-    font-weight: 500;
-}
-
-.board-button:focus,
-.board-button:hover {
-    background-color: #7060FFFF !important;
-    -webkit-transition: all 0.2s ease;
-    -moz-transition: all 0.2s ease;
-    -ms-transition: all 0.2s ease;
-    -o-transition: all 0.2s ease;
-    transition: all 0.2s ease;
-}
-
 .board-icon-button {
     color: #606060FF;
-    margin: 20px 10px 0px;
+    padding: 5px 10px;
+    margin: 5px 5px;
 }
 
 .board-icon-button:focus,
