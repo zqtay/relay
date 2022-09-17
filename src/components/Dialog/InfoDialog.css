@@ -1,0 +1,16 @@
+.info-dialog-image-container {
+    padding: 0 15% 0;
+}
+
+.info-dialog-image {
+    width: 100%;
+    object-fit:"contain";
+}
+
+.info-dialog-text {
+    text-align: left;
+}
+
+.info-dialog-button-guide-icon {
+    color: #606060FF;
+}

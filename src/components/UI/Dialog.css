@@ -1,0 +1,86 @@
+.modal {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal.hidden {
+    background: #00000000;
+    backdrop-filter: unset;
+    height: 0px;
+    opacity: 0;
+    transition: background-color 0.2s, opacity 0.2s, height 0s 0.2s;
+    -webkit-transition: background-color 0.2s, opacity 0.2s, height 0s 0.2s;
+    -moz-transition: background-color 0.2s, opacity 0.2s, height 0s 0.2s;
+    -ms-transition: background-color 0.2s, opacity 0.2s, height 0s 0.2s;
+    -o-transition: background-color 0.2s, opacity 0.2s, height 0s 0.2s;
+}
+
+.modal.show {
+    background: #00000018;
+    backdrop-filter: blur(4px);
+    opacity: 1;
+    transition: background-color 0.3s, opacity 0.3s, height 0s;
+    -webkit-transition: background-color 0.3s, opacity 0.3s, height 0s;
+    -moz-transition: background-color 0.3s, opacity 0.3s, height 0s;
+    -ms-transition: background-color 0.3s, opacity 0.3s, height 0s;
+    -o-transition: background-color 0.3s, opacity 0.3s, height 0s;
+}
+
+.modal-title-icon {
+    color: #7060FFFF;
+}
+
+.modal-status {
+    color:#000000FF;
+    -webkit-animation: fadeIn 0.1s ease-in;
+    -moz-animation: fadeIn 0.1s ease-in;
+    -ms-animation: fadeIn 0.1s ease-in;
+    -o-animation: fadeIn 0.1s ease-in;
+    animation: fadeIn 0.1s ease-in;
+}
+
+.modal-status-error {
+    color: #C51010FF;
+}
+
+.modal-dismiss-button:focus,
+.modal-dismiss-button:hover {
+    color: #C51010FF;
+    transform: scale(1.15);
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.modal-confirm-button {
+    color: white !important;
+    background-color: #2A1CAAFF !important;
+    font-weight: 500;
+}
+
+.modal-confirm-button:focus,
+.modal-confirm-button:hover {
+    background-color: #7060FFFF !important;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

@@ -1,0 +1,133 @@
+.wordbox {
+    background: #00000000;
+    color: #606060FF;
+    font-weight: 500;
+    outline: none;
+    border: 2px solid #FFFFFF00;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    -webkit-transition: all 0.1s ease-in;
+    -moz-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+
+@media (hover: hover) {
+    .wordbox:hover {
+        border: 2px solid #C0C0C0FF;
+        cursor: pointer;
+    }
+}
+
+.wordbox-selected {
+    box-shadow: 0px 0px 15px #00000020;
+    color: #000000FF;
+    font-weight: 650;
+    /* border: 2px solid #7060FFFF; */
+}
+
+/* Charbox text */
+.charbox {
+    background: #FFFFFF00;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.charbox > .charbox-text {
+    border: 2px solid #FFFFFF00;
+    text-align: center;
+    -webkit-transition: all 0.1s ease-in;
+    -moz-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+
+.charbox-hint > .charbox-text {
+    border-color: #FFFFFF00;
+    background: #00000010;
+    color: #606060FF;
+}
+
+.charbox:hover > .charbox-text {
+    border-color: #C0C0C0FF;
+}
+
+.charbox-selected > .charbox-text {
+    border-color: #7060FFFF !important;
+}
+
+/* Underline */
+.charbox-underline {
+    margin-top: -2px;
+    width: 100%;
+    background: #606060FF;
+    -webkit-transition: all 0.1s ease-in;
+    -moz-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+
+.charbox > .charbox-underline {
+    height: 2px;
+}
+
+.charbox-hint > .charbox-underline {
+    background-color: #FFFFFF00;
+}
+
+.charbox-overlap > .charbox-underline {
+    background: #606060FF;
+    height: 5px;
+}
+
+.charbox:hover > .charbox-underline {
+    background: #C0C0C0FF;
+}
+
+.charbox-selected > .charbox-underline {
+    background: #7060FFFF !important;
+}
+
+/* Box size */
+@media only screen and (max-width: 600px) {
+    .charbox {
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+
+    .charbox-text {
+        font-size: 30px;
+        line-height: 45px;
+        height: 45px;
+        width: 45px;
+    }
+
+    .charbox-overlap > .charbox-underline {
+        height: 4px;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .charbox-text {
+        font-size: 40px;
+        line-height: 60px;
+        height: 60px;
+        width: 60px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .charbox-text {
+        font-size: 50px;
+        line-height: 80px;
+        height: 80px;
+        width: 80px;
+    }
+}

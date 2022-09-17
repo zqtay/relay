@@ -1,0 +1,54 @@
+.board {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: auto;
+    -webkit-animation: fadeIn 0.3s ease-in;
+    -moz-animation: fadeIn 0.3s ease-in;
+    -ms-animation: fadeIn 0.3s ease-in;
+    -o-animation: fadeIn 0.3s ease-in;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.board-panel {
+    outline: none;
+    margin: auto;
+    width: fit-content;
+}
+
+.board-control {
+    margin: 0px 5%;
+}
+
+.board-status {
+    margin: 10px;
+    font-size: 1.3em;
+    height: 1.3em;
+}
+
+.board-icon-button {
+    color: #606060FF;
+    padding: 5px 10px;
+    margin: 5px 5px;
+}
+
+.board-icon-button:focus,
+.board-icon-button:hover {
+    color: #2A1CAAFF;
+    transform: scale(1.15);
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
