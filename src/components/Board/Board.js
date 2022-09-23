@@ -13,12 +13,13 @@ import { MAGIC_SUCCESS, MODE_EMPTY, STATE_EMPTY } from "../../game/GameConst";
 const ResultsDialog = lazy(() => import("../Dialog/ResultsDialog"));
 
 const STATUS_EMPTY = { res: null, data: "" };
+const INDEX_INVALID = -1;
 
 const Board = (props) => {
     const [mode, setMode] = useState(MODE_EMPTY);
     const [state, setState] = useState(STATE_EMPTY);
     const [keys, setKeys] = useState([]);
-    const [selected, setSelected] = useState({ wordIndex: -1, charIndex: -1 });
+    const [selected, setSelected] = useState({ wordIndex: INDEX_INVALID, charIndex: INDEX_INVALID });
     const [status, setStatus] = useState(STATUS_EMPTY);
     const [showResults, setShowResults] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -60,7 +61,7 @@ const Board = (props) => {
     const handleGetHint = () => {
         setStatus(STATUS_EMPTY);
         let res = null;
-        if (selected.charIndex === -1) {
+        if (selected.charIndex === INDEX_INVALID) {
             // Random hint
             res = CurrentGame.addHint(selected.wordIndex);
         }
@@ -90,18 +91,17 @@ const Board = (props) => {
     const handleKey = (e) => {
         setStatus(STATUS_EMPTY);
         // console.log(`${e.key} ${selected.wordIndex} ${selected.charIndex}`);
+        const key = e.key.toUpperCase();
         let wordIndex = selected.wordIndex;
         let charIndex = selected.charIndex;
 
-        const key = e.key.toUpperCase();
-        const newInputs = [...state.inputs];
-        const newInput = newInputs[wordIndex].split('');
-        const hint = state.hints[wordIndex];
-
         // Check out of range
+        if (wordIndex === INDEX_INVALID) {
+            return;
+        }
         if (charIndex >= mode.wordLen || charIndex < 0) {
             // Special cases
-            if (key.length === 1 && charIndex === -1) {
+            if (key.length === 1 && charIndex === INDEX_INVALID) {
                 // Auto set to 0 if char not selected
                 charIndex = 0;
             }
@@ -113,6 +113,10 @@ const Board = (props) => {
             }
         }
 
+        const newInputs = [...state.inputs];
+        const newInput = newInputs[wordIndex].split('');
+        const hint = state.hints[wordIndex];
+
         if (key.length === 1) {
             // Only set char if index is within range and hint not exist
             if (charIndex < mode.wordLen && hint[charIndex] === ' ') {
@@ -120,7 +124,15 @@ const Board = (props) => {
                 newInputs[wordIndex] = newInput.join('');
                 setState((prev) => ({ ...prev, inputs: newInputs }));
             }
-            if (charIndex < mode.wordLen - 1) charIndex++;
+            if (charIndex < (mode.wordLen - 1)) {
+                charIndex++;
+            }
+            else if (charIndex === (mode.wordLen - 1)) {
+                if (wordIndex < (mode.noOfWords - 1)) {
+                    charIndex = 0;
+                    wordIndex++;
+                }
+            }
         }
         else if (key === 'DELETE' || key === 'BACKSPACE') {
             // Skip deleting hints
@@ -129,16 +141,42 @@ const Board = (props) => {
                 newInputs[wordIndex] = newInput.join('');
                 setState((prev) => ({ ...prev, inputs: newInputs }));
             }
-            if (key === 'BACKSPACE' && charIndex > 0) charIndex--;
+            if (key === 'BACKSPACE') {
+                if (charIndex > 0) {
+                    charIndex--;
+                } 
+                else if (charIndex === 0) {
+                    if (wordIndex > 0) {
+                        charIndex = mode.wordLen - 1;
+                        wordIndex--;
+                    }
+                }
+            }
         }
         else if (key === 'ENTER') {
             handleCheckWord(wordIndex, newInput.join(''));
         }
         else if (key === 'ARROWLEFT') {
-            if (charIndex > 0) charIndex--;
+            if (charIndex > 0) {
+                charIndex--;
+            } 
+            else if (charIndex === 0) {
+                if (wordIndex > 0) {
+                    charIndex = mode.wordLen - 1;
+                    wordIndex--;
+                }
+            }
         }
         else if (key === 'ARROWRIGHT') {
-            if (charIndex < (mode.wordLen - 1)) charIndex++;
+            if (charIndex < (mode.wordLen - 1)) {
+                charIndex++;
+            }
+            else if (charIndex === (mode.wordLen - 1)) {
+                if (wordIndex < (mode.noOfWords - 1)) {
+                    charIndex = 0;
+                    wordIndex++;
+                }
+            }
         }
         else if (key === 'ARROWUP') {
             if (wordIndex > 0) wordIndex--;

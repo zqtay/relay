@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useRef } from "react";
 
 const LONG_PRESS_DELAY_DEFAULT = 500; // ms
+const TIMER_ID_INVALID = -1;
 
 const useLongPress = (onLongPress, onClick, threshold = LONG_PRESS_DELAY_DEFAULT) => {
     let timerId = useRef(null);
     let isPressed = useRef(null);
-    let isLongPress = useRef(null);
 
     useEffect(() => {
         // console.log("useeffect")
-        timerId.current = -1;
+        timerId.current = TIMER_ID_INVALID;
         isPressed.current = false;
-        isLongPress.current = false;
     }, []);
 
     const handleLongPress = useCallback(() => {
         // console.log("long")
-        isLongPress.current = true;
         onLongPress();
+        isPressed.current = false;
+        timerId.current = TIMER_ID_INVALID;
     }, [onLongPress]);
 
     const start = useCallback((e, preventDefault = true) => {
@@ -34,17 +34,17 @@ const useLongPress = (onLongPress, onClick, threshold = LONG_PRESS_DELAY_DEFAULT
     const clear = useCallback((e, preventDefault = true) => {
         // console.log(`clear ${timerId.current} ${isPressed.current}`)
         if (preventDefault) e.preventDefault();
-        if (timerId.current !== -1 && isPressed.current) {
+        if (timerId.current !== TIMER_ID_INVALID && isPressed.current) {
             // console.log("clear timeout")
             clearTimeout(timerId.current);
-            timerId.current = -1;
-            isPressed.current = false;
+            timerId.current = TIMER_ID_INVALID;
         }
-        if (!isLongPress.current) {
+        // isPressed will be cleared by handleLongPress
+        if (isPressed.current) {
             // console.log("click")
             onClick();
         }
-        isLongPress.current = false
+        isPressed.current = false
     }, [onClick]);
 
     return {

@@ -1,6 +1,6 @@
 {
   "name": "relay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://zqtay.github.io/relay",
   "private": true,
   "dependencies": {

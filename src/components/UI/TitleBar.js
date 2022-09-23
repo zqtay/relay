@@ -15,7 +15,7 @@ const TitleBar = (props) => {
         <nav className="navbar navbar-expand bg-light">
             <div className="container">
                 <Link className="navbar-brand d-flex align-items-center" to="/" onClick={reload}>
-                    <img className="titlebar-logo" src={logo} />
+                    <img className="titlebar-logo" alt="" src={logo} />
                     <span className="titlebar-brand-text">Relay</span>
                 </Link>
                 <div className="collapse navbar-collapse">

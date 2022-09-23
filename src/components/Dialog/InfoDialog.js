@@ -22,7 +22,7 @@ const InfoContent = () => {
     return (
         <div className="">
             <div className="info-dialog-image-container">
-                <img className="info-dialog-image" src={example} />
+                <img className="info-dialog-image" alt="" src={example} />
             </div>
             <ul className="info-dialog-text">
                 <li>
