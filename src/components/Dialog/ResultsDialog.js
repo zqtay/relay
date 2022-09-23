@@ -57,8 +57,21 @@ const ResultsDialog = ({ show, inputs, dismiss }) => {
 };
 
 const checkAltSolution = (inputs, solution) => {
-    if (inputs === null || solution === null || solution.length === 0) return false;
-    return !inputs.every((v, i) => v === solution[i]);
+    if (inputs === null || solution === null || solution.length === 0) {
+        return [false, null];
+    }
+    let isAltSolution = false;
+    let solutionText = inputs.map((v, i) => {
+        let text = solution[i];
+        if (v !== text) {
+            isAltSolution = true;
+            text = <b>{text}</b>;
+        } else {
+            text = <>{text}</>;
+        }
+        return (i === 0) ? <>{text}</> : <>, {text}</>;
+    });
+    return [isAltSolution, solutionText];
 };
 
 const ResultsContent = ({ show, inputs, setStatus }) => {
@@ -69,7 +82,7 @@ const ResultsContent = ({ show, inputs, setStatus }) => {
         solution = CurrentGame.getSolution().data;
     }
 
-    const isAltSolution = checkAltSolution(inputs, solution);
+    const [isAltSolution, solutionText] = checkAltSolution(inputs, solution);
     const onClickShare = () => {
         const status = (
             <>
@@ -93,7 +106,7 @@ const ResultsContent = ({ show, inputs, setStatus }) => {
             {isAltSolution && (
                 <>
                     <div className="text-start fw-semibold">Original solution: </div>
-                    <div><b>{solution.join(', ')}</b></div>
+                    <div>{solutionText}</div>
                     <hr></hr>
                 </>
             )}
