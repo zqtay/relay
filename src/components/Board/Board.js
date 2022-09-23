@@ -124,7 +124,15 @@ const Board = (props) => {
                 newInputs[wordIndex] = newInput.join('');
                 setState((prev) => ({ ...prev, inputs: newInputs }));
             }
-            if (charIndex < mode.wordLen - 1) charIndex++;
+            if (charIndex < (mode.wordLen - 1)) {
+                charIndex++;
+            }
+            else if (charIndex === (mode.wordLen - 1)) {
+                if (wordIndex < (mode.noOfWords - 1)) {
+                    charIndex = 0;
+                    wordIndex++;
+                }
+            }
         }
         else if (key === 'DELETE' || key === 'BACKSPACE') {
             // Skip deleting hints
@@ -133,16 +141,42 @@ const Board = (props) => {
                 newInputs[wordIndex] = newInput.join('');
                 setState((prev) => ({ ...prev, inputs: newInputs }));
             }
-            if (key === 'BACKSPACE' && charIndex > 0) charIndex--;
+            if (key === 'BACKSPACE') {
+                if (charIndex > 0) {
+                    charIndex--;
+                } 
+                else if (charIndex === 0) {
+                    if (wordIndex > 0) {
+                        charIndex = mode.wordLen - 1;
+                        wordIndex--;
+                    }
+                }
+            }
         }
         else if (key === 'ENTER') {
             handleCheckWord(wordIndex, newInput.join(''));
         }
         else if (key === 'ARROWLEFT') {
-            if (charIndex > 0) charIndex--;
+            if (charIndex > 0) {
+                charIndex--;
+            } 
+            else if (charIndex === 0) {
+                if (wordIndex > 0) {
+                    charIndex = mode.wordLen - 1;
+                    wordIndex--;
+                }
+            }
         }
         else if (key === 'ARROWRIGHT') {
-            if (charIndex < (mode.wordLen - 1)) charIndex++;
+            if (charIndex < (mode.wordLen - 1)) {
+                charIndex++;
+            }
+            else if (charIndex === (mode.wordLen - 1)) {
+                if (wordIndex < (mode.noOfWords - 1)) {
+                    charIndex = 0;
+                    wordIndex++;
+                }
+            }
         }
         else if (key === 'ARROWUP') {
             if (wordIndex > 0) wordIndex--;
